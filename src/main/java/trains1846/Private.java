@@ -8,8 +8,8 @@ import java.util.List;
  * Created by micha on 6/7/2020.
  */
 public enum Private {
-    BIG4(100),
-    MS(160),
+    BIG4(100, 60),
+    MS(160, 100),
     CWI(60),
     MAIL(80),
 
@@ -31,8 +31,16 @@ public enum Private {
     ERIE(0),
     PRR(0);
 
+    private int minPrice;
+
     Private(int cost) {
         this.cost = cost;
+        this.minPrice = cost;
+    }
+
+    Private(int cost, int minPrice) {
+        this.cost = cost;
+        this.minPrice = minPrice;
     }
 
     private int cost;
@@ -63,5 +71,9 @@ public enum Private {
 
     public int getCost() {
         return cost;
+    }
+
+    public int getMinPrice() {
+        return minPrice;
     }
 }

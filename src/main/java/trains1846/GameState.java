@@ -100,6 +100,9 @@ public class GameState {
 
     @NotNull
     String stateOfPlayer(int i) {
-        return ": " + picks.get(i) + "and $" + cash[i] + "\n";
+        if (picks.get(i).isEmpty()) {
+            return ": $" + cash[i] + "\n";
+        }
+        return ": " + picks.get(i) + " and $" + cash[i] + "\n";
     }
 }

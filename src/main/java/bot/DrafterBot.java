@@ -57,10 +57,14 @@ public class DrafterBot extends ListenerAdapter {
             if (currentGame != null) {
                 currentGame.handleMessage(event);
             }
-            for (Member member : event.getMessage().getMentionedMembers()) {
-                if (member.getUser().getId().equals(selfUser.getId())) {
-                    event.getChannel().sendMessage("Did somebody say my name?\nHi, I'm MomirBot! If you would like to start a game of container, enter the !container command.").queue();
-                    return;
+            if (event.getGuild() != null) {
+                if (event.getMessage().getMentionedMembers() != null) {
+                    for (Member member : event.getMessage().getMentionedMembers()) {
+                        if (member.getUser().getId().equals(selfUser.getId())) {
+                            event.getChannel().sendMessage("Did somebody say my name?\nIf you would like to start a game of 1846, send a message that starts with \"!1846draft\".\n Make sure to @mention each of the players in the game in that message.").queue();
+                            return;
+                        }
+                    }
                 }
             }
         }

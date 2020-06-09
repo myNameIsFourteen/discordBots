@@ -55,8 +55,19 @@ public class DraftMaster {
     }
 
     private void requestSelection(List<Private> privates) {
-        output.publishToPlayer("Select from among:" + privates, state.getActivePlayer());
+        StringBuilder bldr = new StringBuilder();
+        stateAndPrompt(privates, bldr);
+        output.publishToPlayer(bldr.toString(), state.getActivePlayer());
         state.setWait(NORMAL);
+    }
+
+    private void stateAndPrompt(List<Private> privates, StringBuilder bldr) {
+        bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "Please make a selection:\n");
+        int i = 0;
+        for (Private pvt : privates) {
+            bldr.append(i + ") " + pvt + " for $" + (pvt.getCost() - state.getDiscount()) + "\n");
+            i++;
+        }
     }
 
     void selectionMade(int selection) {
@@ -83,10 +94,13 @@ public class DraftMaster {
             output.publishToAll("The final private is: " + singleTon);
         }
         int discount = state.getDiscount();
-        if (discount == singleTon.get(0).getCost()) {
+        if (singleTon.get(0).getCost() - discount == singleTon.get(0).getMinPrice()) {
             finalSelecitonMade(0);
         } else {
-            output.publishToPlayer("Take the last card or decline and reduce price. " + singleTon, state.getActivePlayer());
+            StringBuilder bldr = new StringBuilder();
+            stateAndPrompt(singleTon, bldr);
+            bldr.append("1) decline and redude price by $10");
+            output.publishToPlayer(bldr.toString(), state.getActivePlayer());
         }
     }
 
