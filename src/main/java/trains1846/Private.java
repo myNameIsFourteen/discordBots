@@ -9,7 +9,7 @@ import java.util.List;
  */
 public enum Private {
     BIG4(100, 60),
-    MS(160, 100),
+    MS(140, 80),
     CWI(60),
     MAIL(80),
 
