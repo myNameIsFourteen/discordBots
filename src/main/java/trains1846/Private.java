@@ -35,7 +35,7 @@ public enum Private {
 
     Private(int cost) {
         this.cost = cost;
-        this.minPrice = cost;
+        this.minPrice = 0;
     }
 
     Private(int cost, int minPrice) {

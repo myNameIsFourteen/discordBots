@@ -4,10 +4,7 @@ import container.ContainerPlayer;
 import container.ContainerStart;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -57,7 +54,7 @@ public class DrafterBot extends ListenerAdapter {
             if (currentGame != null) {
                 currentGame.handleMessage(event);
             }
-            if (event.getGuild() != null) {
+            if (event.getChannelType() == ChannelType.TEXT) {
                 if (event.getMessage().getMentionedMembers() != null) {
                     for (Member member : event.getMessage().getMentionedMembers()) {
                         if (member.getUser().getId().equals(selfUser.getId())) {

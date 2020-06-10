@@ -50,14 +50,20 @@ public class GameState {
         return currentHand;
     }
 
-    public void buyIndex(int selection) {
-        Private selected = currentHand.remove(selection);
+    public boolean buyIndex(int selection) {
+        Private selected;
+        try {
+            selected = currentHand.remove(selection);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
         picks.get(activePlayer).add(selected);
         cash[activePlayer] -= selected.getCost();
         cash[activePlayer] += discount;
         //gotta add selected to the current player's holdings
         deck.addAll(currentHand);
         currentHand.clear();
+        return true;
     }
 
     public boolean allPasses() {
@@ -93,7 +99,7 @@ public class GameState {
     public String getEndState() {
         StringBuilder builder = new StringBuilder();
         for (int i = playerCount - 1; i >= 0; i--) {
-            builder.append("P"+ (i+1) + stateOfPlayer(i));
+            builder.append(stateOfPlayer(i));
         }
         return builder.toString();
     }
@@ -104,5 +110,9 @@ public class GameState {
             return ": $" + cash[i] + "\n";
         }
         return ": " + picks.get(i) + " and $" + cash[i] + "\n";
+    }
+
+    public int getPlayerCount() {
+        return playerCount;
     }
 }

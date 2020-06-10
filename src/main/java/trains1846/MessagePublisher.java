@@ -8,4 +8,6 @@ public interface MessagePublisher {
     void publishToPlayer(String message, int player);
 
     void abortDraft();
+
+    String mentionPlayer(int activePlayer);
 }

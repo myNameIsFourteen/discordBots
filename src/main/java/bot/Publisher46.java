@@ -65,7 +65,7 @@ public class Publisher46 implements MessagePublisher {
     @Override
     public void publishToPlayer(String message, int player) {
         players.get(player).openPrivateChannel().queue((channel) -> {
-            channel.sendMessage(pFromIndex(player) + ": " + message
+            channel.sendMessage(message
             ).queue();
         });
         activePlayer = players.get(player);
@@ -73,7 +73,7 @@ public class Publisher46 implements MessagePublisher {
 
     @NotNull
     private String pFromIndex(int player) {
-        return "P" + player;
+        return "P" + (players.size() - player);
     }
 
     public void handleMessage(MessageReceivedEvent event) {
@@ -94,5 +94,10 @@ public class Publisher46 implements MessagePublisher {
     @Override
     public void abortDraft() {
         exitCallback.run();
+    }
+
+    @Override
+    public String mentionPlayer(int activePlayer) {
+        return players.get(activePlayer).getAsMention();
     }
 }
