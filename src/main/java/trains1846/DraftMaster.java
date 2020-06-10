@@ -73,19 +73,22 @@ public class DraftMaster {
 
     void selectionMade(int selection) {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
-        state.buyIndex(selection);
-        output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-        output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " made a selection.");
+        if (state.buyIndex(selection)) {
+            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
+            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " made a selection.");
 
-        //advance active player
-        if (state.allPasses()) {
-            output.publishToAll("Only blanks remain.");
-            draftComplete();
-            return;
-        } else if (state.oneLeft()) {
-            dealAndRequestLastCard();
+            //advance active player
+            if (state.allPasses()) {
+                output.publishToAll("Only blanks remain.");
+                draftComplete();
+                return;
+            } else if (state.oneLeft()) {
+                dealAndRequestLastCard();
+            }
+            dealAndRequestNormalCard();
+        } else {
+            output.publishToPlayer("Sorry, that number was not in-bounds.", state.getActivePlayer());
         }
-        dealAndRequestNormalCard();
     }
 
     void dealAndRequestLastCard() {
@@ -113,16 +116,21 @@ public class DraftMaster {
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
             output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " accepted the last card.");
             draftComplete();
-        } else {
+        } else if (selection == 1) {
             state.reducePrice();
             output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " declined the last card.");
             dealAndRequestLastCard();
+        } else {
+            output.publishToPlayer("I'm sorry, please enter 0 or 1", state.getActivePlayer());
         }
     }
 
     void draftComplete() {
         StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
-        for (int i = 0; i < state.getPlayerCount(); i++) {
+        for (int i = state.getPlayerCount()-1; i >= 0; i--) {
+            if (i == state.getPlayerCount() -1) {
+                bldr.append("*PD* ");
+            }
             bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i));
         }
         output.publishToAll(bldr.toString());
