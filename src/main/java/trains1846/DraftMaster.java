@@ -37,6 +37,11 @@ public class DraftMaster {
         removeSome(playerCount, corps);
 
         state.shuffleDeck();
+
+        for (int i = 0; i < playerCount; i++) {
+            output.publishToPlayer("---Welcome to 1846 draft. You hold:" + state.stateOfPlayer(i) + "---", i, false);
+        }
+
         dealAndRequestNormalCard();
     }
 
@@ -100,6 +105,7 @@ public class DraftMaster {
         }
         int discount = state.getDiscount();
         if (singleTon.get(0).getCost() - discount == singleTon.get(0).getMinPrice()) {
+            output.publishToPlayer("You are forced to accept:" + singleTon.get(0) + " for $" + singleTon.get(0).getMinPrice(), state.getActivePlayer());
             finalSelecitonMade(0);
         } else {
             StringBuilder bldr = new StringBuilder();
@@ -118,6 +124,7 @@ public class DraftMaster {
             draftComplete();
         } else if (selection == 1) {
             state.reducePrice();
+            output.publishToPlayer("Last card declined. You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
             output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " declined the last card.");
             dealAndRequestLastCard();
         } else {
@@ -137,7 +144,7 @@ public class DraftMaster {
         output.abortDraft();
     }
 
-    public void gotMessage(int selection) {
+    public synchronized void gotMessage(int selection) {
         if (state.getWait() == NORMAL) {
             selectionMade(selection);
         } else if (state.getWait() == DISCOUNT) {

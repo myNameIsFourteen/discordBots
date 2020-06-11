@@ -59,16 +59,22 @@ public class Publisher46 implements MessagePublisher {
 
     @Override
     public void publishToAll(String message) {
-        channel.sendMessage(message).queue();
+        channel.sendMessage(message).complete();
     }
 
     @Override
     public void publishToPlayer(String message, int player) {
+        publishToPlayer(message, player, true);
+    }
+
+    public void publishToPlayer(String message, int player, boolean advancePlayer) {
         players.get(player).openPrivateChannel().queue((channel) -> {
-            channel.sendMessage(message
-            ).queue();
+            channel.sendMessage(pFromIndex(player) + message
+            ).complete();
         });
-        activePlayer = players.get(player);
+        if (advancePlayer) {
+            activePlayer = players.get(player);
+        }
     }
 
     @NotNull
@@ -76,23 +82,26 @@ public class Publisher46 implements MessagePublisher {
         return "P" + (players.size() - player);
     }
 
-    public void handleMessage(MessageReceivedEvent event) {
+    public synchronized void handleMessage(MessageReceivedEvent event) {
         if (event.getChannelType() == ChannelType.PRIVATE) {
             try {
                 int i = Integer.parseInt(event.getMessage().getContentRaw());
                 if (event.getAuthor().getId().equals(activePlayer.getId())) {
                     draftMaster.gotMessage(i);
                 } else {
-                    event.getChannel().sendMessage("Hey, it isn't your turn right now").queue();
+                    event.getChannel().sendMessage("Hey, it isn't your turn right now").complete();
                 }
             } catch (NumberFormatException e) {
-                event.getChannel().sendMessage("Sorry, I was expecting an integer").queue();
+                event.getChannel().sendMessage("Sorry, I was expecting an integer").complete();
             }
         }
     }
 
     @Override
     public void abortDraft() {
+        for (int i = 0; i < players.size(); i++) {
+            publishToPlayer("---The draft has ended!---", i, false);
+        }
         exitCallback.run();
     }
 

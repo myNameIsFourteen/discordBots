@@ -45,11 +45,11 @@ public class DrafterBot extends ListenerAdapter {
             if (currentGame == null) {
                 currentGame = new Publisher46(event, () -> {currentGame = null;});
             } else {
-                event.getChannel().sendMessage("Sorry, there is a draft in progress. Try again later or run !1846abort").queue();
+                event.getChannel().sendMessage("Sorry, there is a draft in progress. Try again later or run !1846abort").complete();
             }
         } else if (content.startsWith("!1846abort")) {
             currentGame.publishToAll("This draft was aborted by someone using the !1846abort command");
-            currentGame = null;
+            currentGame.abortDraft();
         } else {
             if (currentGame != null) {
                 currentGame.handleMessage(event);
@@ -58,7 +58,7 @@ public class DrafterBot extends ListenerAdapter {
                 if (event.getMessage().getMentionedMembers() != null) {
                     for (Member member : event.getMessage().getMentionedMembers()) {
                         if (member.getUser().getId().equals(selfUser.getId())) {
-                            event.getChannel().sendMessage("Did somebody say my name?\nIf you would like to start a game of 1846, send a message that starts with \"!1846draft\".\n Make sure to @mention each of the players in the game in that message.").queue();
+                            event.getChannel().sendMessage("Did somebody say my name?\nIf you would like to start a game of 1846, send a message that starts with \"!1846draft\".\n Make sure to @mention each of the players in the game in that message.").complete();
                             return;
                         }
                     }

@@ -1,5 +1,7 @@
 package trains1846;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by micha on 6/7/2020.
  */
@@ -10,4 +12,6 @@ public interface MessagePublisher {
     void abortDraft();
 
     String mentionPlayer(int activePlayer);
+
+    void publishToPlayer(String s, int i, boolean b);
 }
