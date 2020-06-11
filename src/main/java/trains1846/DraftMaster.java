@@ -1,7 +1,5 @@
 package trains1846;
 
-import bot.Publisher46;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -89,8 +87,10 @@ public class DraftMaster {
                 return;
             } else if (state.oneLeft()) {
                 dealAndRequestLastCard();
+                return;
             }
             dealAndRequestNormalCard();
+            return;
         } else {
             output.publishToPlayer("Sorry, that number was not in-bounds.", state.getActivePlayer());
         }

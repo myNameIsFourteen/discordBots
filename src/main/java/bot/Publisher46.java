@@ -1,17 +1,18 @@
 package bot;
 
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import trains1846.DraftMaster;
 import trains1846.MessagePublisher;
 
+import java.nio.file.DirectoryStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 /**
  * Created by micha on 6/7/2020.
@@ -20,6 +21,7 @@ public class Publisher46 implements MessagePublisher {
 
     private final Runnable exitCallback;
     private MessageChannel channel;
+    private List<PrivateChannel> privateChannels = new ArrayList<>();
     private DraftMaster draftMaster;
     private ArrayList<User> players = new ArrayList<>();
     private User activePlayer;
@@ -52,6 +54,21 @@ public class Publisher46 implements MessagePublisher {
 
         Collections.reverse(players);
 
+        Consumer<PrivateChannel> messageChannelFilter = (PrivateChannel prvChannel) -> privateChannels.add(prvChannel);
+
+        List<Future<PrivateChannel>> futures = new ArrayList<>();
+
+        players.forEach(p -> futures.add(p.openPrivateChannel().submit()));
+
+        for (Future<PrivateChannel> future : futures) {
+            try {
+                privateChannels.add(future.get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
         //players shuffle goes here
         draftMaster = new DraftMaster(this, players.size());
         this.exitCallback = exitCallback;
@@ -68,10 +85,7 @@ public class Publisher46 implements MessagePublisher {
     }
 
     public void publishToPlayer(String message, int player, boolean advancePlayer) {
-        players.get(player).openPrivateChannel().queue((channel) -> {
-            channel.sendMessage(pFromIndex(player) + message
-            ).complete();
-        });
+        privateChannels.get(player).sendMessage(pFromIndex(player) + message).complete();
         if (advancePlayer) {
             activePlayer = players.get(player);
         }
