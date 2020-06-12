@@ -1,5 +1,6 @@
 package trains1846;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,16 +24,19 @@ public class DraftMaster {
         int playerCount = size;
         state = new GameState(playerCount);
         state.addToDeck(Private.playerCards(playerCount));
+        List<Private> removed = new ArrayList<>();
         List<Private> groupA = Private.groupA();
-        removeSome(playerCount, groupA);
+        removed.addAll(removeSome(playerCount, groupA));
         state.addToDeck(groupA);
 
         List<Private> groupB = Private.groupB();
-        removeSome(playerCount, groupB);
+        removed.addAll(removeSome(playerCount, groupB));
         state.addToDeck(groupB);
 
+        output.publishToAll("Removed Privates: " + removed);
+
         List<Private> corps = Private.removableCorps();
-        removeSome(playerCount, corps);
+        output.publishToAll("Removed Corporations: " + removeSome(playerCount, corps));
 
         state.shuffleDeck();
 
@@ -43,12 +47,14 @@ public class DraftMaster {
         dealAndRequestNormalCard();
     }
 
-    private void removeSome(int playerCount, List<Private> groupA) {
+    private List<Private> removeSome(int playerCount, List<Private> groupA) {
         Collections.shuffle(groupA);
+        List<Private> ret = new ArrayList<>();
         for (int i = 5; i > playerCount; i--) {
             Private removed = groupA.remove(0);
-            output.publishToAll("Removed " + removed);
+            ret.add(removed);
         }
+        return ret;
     }
 
     void dealAndRequestNormalCard() {
