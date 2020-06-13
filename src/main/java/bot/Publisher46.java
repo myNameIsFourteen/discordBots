@@ -4,9 +4,8 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import trains1846.DraftMaster;
-import trains1846.MessagePublisher;
+import genericDraft.MessagePublisher;
 
-import java.nio.file.DirectoryStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

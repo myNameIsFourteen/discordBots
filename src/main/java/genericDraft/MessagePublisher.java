@@ -1,4 +1,4 @@
-package trains1846;
+package genericDraft;
 
 import org.jetbrains.annotations.NotNull;
 
