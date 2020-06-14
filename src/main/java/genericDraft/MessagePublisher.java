@@ -14,5 +14,5 @@ public interface MessagePublisher {
     String mentionPlayer(int activePlayer);
     String namePlayer(int activePlayer);
 
-    void publishToPlayer(String s, int i, boolean b);
+    void publishToPlayer(String s, int i, boolean b, boolean info);
 }

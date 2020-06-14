@@ -1,47 +1,44 @@
 package genericDraft;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by micha on 6/11/2020.
  */
-public class DraftState {
-    private int activePlayer;
+public class DraftState<Pickable extends Object> {
+    private int offset;
     private int playerCount;
+    private List<List<Pickable>> packs = new ArrayList<>();
+    private List<List<Pickable>> picks = new ArrayList<>();
 
-    public DraftState(int playerCount) {
-        
+    public DraftState(int playerCount, List<Pickable> startingDeck) {
+        //deal the cards into random packs
+        for (int i = 0; i < playerCount; i++) {
+            packs.add(new ArrayList<Pickable>());
+            picks.add(new ArrayList<Pickable>());
+        }
+        Collections.shuffle(startingDeck);
+        for (int deal = 0;!startingDeck.isEmpty();deal++) {
+            deal %= packs.size();
+            packs.get(deal).add(startingDeck.remove(0));
+        }
+        //pack creation complete
     }
 
-    public void addToDeck(List<Object> toDraft) {
-        
+    public boolean makeAPick(int player, int selection) {
+        Pickable pick = currentPack(player).remove(selection);
+        picks.get(player).add(pick);
+        return true;
     }
 
-    public void shuffleDeck() {
-        
+    private List<Pickable> currentPack(int player) {
+        int packNum = (player + offset) % packs.size();
+        return packs.get(player);
     }
 
-    public String stateOfPlayer(int i) {
-        return null;
-    }
-
-    public List<Object> dealHand() {
-        return null;
-    }
-
-    public int getActivePlayer() {
-        return activePlayer;
-    }
-
-    public boolean pick(int selection) {
-        return false;
-    }
-
-    public boolean isComplete() {
-        return false;
-    }
-
-    public int getPlayerCount() {
-        return playerCount;
+    private void passPacks() {
+        offset++;
     }
 }

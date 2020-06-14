@@ -1,5 +1,9 @@
 package bot;
 
+import comms.IDraftMaster;
+import comms.Muxer;
+import comms.Prompt;
+import comms.PromptQueue;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -12,17 +16,18 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by micha on 6/7/2020.
  */
-public class Publisher46 implements MessagePublisher {
+public class Publisher46 implements MessagePublisher, IDraftMaster {
 
     private final Runnable exitCallback;
     private MessageChannel channel;
-    private List<PrivateChannel> privateChannels = new ArrayList<>();
     private DraftMaster draftMaster;
     private ArrayList<Member> players = new ArrayList<>();
+    private List<PromptQueue> promptQueues = new ArrayList<>();
     private Member activePlayer;
 
     public Publisher46(MessageReceivedEvent event, Runnable exitCallback) {
@@ -53,21 +58,10 @@ public class Publisher46 implements MessagePublisher {
 
         Collections.reverse(players);
 
-        Consumer<PrivateChannel> messageChannelFilter = (PrivateChannel prvChannel) -> privateChannels.add(prvChannel);
-
-        List<Future<PrivateChannel>> futures = new ArrayList<>();
-
-        players.forEach(p -> futures.add(p.getUser().openPrivateChannel().submit()));
-
-        for (Future<PrivateChannel> future : futures) {
-            try {
-                privateChannels.add(future.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+        for (Member player : players) {
+            promptQueues.add(Muxer.getTheMuxer().openAChannel(player.getUser()));
         }
+
         //players shuffle goes here
         draftMaster = new DraftMaster(this, players.size());
         this.exitCallback = exitCallback;
@@ -80,11 +74,39 @@ public class Publisher46 implements MessagePublisher {
 
     @Override
     public void publishToPlayer(String message, int player) {
-        publishToPlayer(message, player, true);
+        publishToPlayer(message, player, true, true);
     }
 
-    public void publishToPlayer(String message, int player, boolean advancePlayer) {
-        privateChannels.get(player).sendMessage(pFromIndex(player) + message).complete();
+    public void publishToPlayer(String message, int player, boolean advancePlayer, boolean info) {
+        if (info) {
+            promptQueues.get(player).sendInfo(message);
+        } else {
+            promptQueues.get(player).promptUser(new Prompt() {
+                @Override
+                public String promptToSend() {
+                    return message;
+                }
+
+                @Override
+                public Function<String, Boolean> handleResponse() {
+                    return (String s) -> {
+                        try {
+                            int i = Integer.parseInt(s);
+                            draftMaster.gotMessage(i);
+                            return true;
+                        } catch (NumberFormatException e) {
+                            // event.getChannel().sendMessage("Sorry, I was expecting an integer").complete();
+                        }
+                        return false;
+                    };
+                }
+
+                @Override
+                public User userToPrompt() {
+                    return players.get(player).getUser();
+                }
+            });
+        }
         if (advancePlayer) {
             activePlayer = players.get(player);
         }
@@ -95,12 +117,13 @@ public class Publisher46 implements MessagePublisher {
         return "P" + (players.size() - player);
     }
 
-    public synchronized void handleMessage(MessageReceivedEvent event) {
+    public synchronized boolean handleMessage(MessageReceivedEvent event) {
         if (event.getChannelType() == ChannelType.PRIVATE) {
             try {
                 int i = Integer.parseInt(event.getMessage().getContentRaw());
                 if (event.getAuthor().getId().equals(activePlayer.getId())) {
                     draftMaster.gotMessage(i);
+                    return true;
                 } else {
                     event.getChannel().sendMessage("Hey, it isn't your turn right now").complete();
                 }
@@ -108,12 +131,13 @@ public class Publisher46 implements MessagePublisher {
                 event.getChannel().sendMessage("Sorry, I was expecting an integer").complete();
             }
         }
+        return false;
     }
 
     @Override
     public void abortDraft() {
         for (int i = 0; i < players.size(); i++) {
-            publishToPlayer("---The draft has ended!---", i, false);
+            publishToPlayer("---The draft has ended!---", i, false, true);
         }
         exitCallback.run();
     }

@@ -1,20 +1,23 @@
 package bot;
 
+import comms.IDraftMaster;
+import comms.Muxer;
 import container.ContainerPlayer;
 import container.ContainerStart;
+import genericDraft.GenericDraftMaster;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import qe.QeManager;
 
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by micha on 4/21/2020.
@@ -24,6 +27,7 @@ public class DrafterBot extends ListenerAdapter {
     private static SelfUser selfUser;
     private static JDA main;
     Publisher46 currentGame = null;
+    Map<MessageChannel, IDraftMaster> games = new HashMap<>();
 
     public static void main(String[] args) throws LoginException {
         String token = args[0];
@@ -44,30 +48,36 @@ public class DrafterBot extends ListenerAdapter {
 
         if (content.startsWith("!startPlayer")) {
             if (event.getChannelType() == ChannelType.TEXT) {
-                StringBuilder bldr = new StringBuilder();
-                List<Member> users = new ArrayList<>(event.getMessage().getMentionedMembers());
-                Collections.shuffle(users);
-                int i = 1;
-                for (Member user : users) {
-                    bldr.append(user.getEffectiveName() + " is in seat " + (i++) + "\n");
-                }
-                if (bldr.length() > 0) {
-                    event.getChannel().sendMessage(bldr.toString()).queue();
+                List<String> users = new ArrayList<>(event.getMessage().getMentionedMembers()).stream().map(Member::getEffectiveName).collect(Collectors.toList());
+                String text = startPlayer(users);
+                if (text.length() > 0) {
+                    event.getChannel().sendMessage(text).queue();
                 }
             }
         } else if (content.startsWith("!1846draft")) {
-            if (currentGame == null) {
-                currentGame = new Publisher46(event, () -> {currentGame = null;});
+            IDraftMaster iDraftMaster = games.get(event.getChannel());
+            if (iDraftMaster == null) {
+                games.put(event.getChannel(), new Publisher46(event, () -> {games.put(event.getChannel(), null);}));
             } else {
-                event.getChannel().sendMessage("Sorry, there is a draft in progress. Try again later or run !1846abort").complete();
+                event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
         } else if (content.startsWith("!1846abort")) {
-            currentGame.publishToAll("This draft was aborted by someone using the !1846abort command");
-            currentGame.abortDraft();
-        } else {
-            if (currentGame != null) {
-                currentGame.handleMessage(event);
+            IDraftMaster iDraftMaster = games.get(event.getChannel());
+            iDraftMaster.publishToAll("This draft was aborted by someone using the !1846abort command");
+            iDraftMaster.abortDraft();
+        } else if (content.startsWith("!draftTest")) {
+            IDraftMaster iDraftMaster = games.get(event.getChannel());
+            if (iDraftMaster == null) {
+                games.put(event.getChannel(), new PublisherGeneric(event, () -> {games.put(event.getChannel(), null);}));
+            } else {
+                event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
+        } else {
+            IDraftMaster currentGame = games.get(event.getChannel());
+            if (currentGame != null && currentGame instanceof Publisher46) {
+                ((Publisher46) currentGame).handleMessage(event);
+            }
+            Muxer.getTheMuxer().messageIn(event);
             if (event.getChannelType() == ChannelType.TEXT) {
                 if (event.getMessage().getMentionedMembers() != null) {
                     for (Member member : event.getMessage().getMentionedMembers()) {
@@ -80,5 +90,16 @@ public class DrafterBot extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    @NotNull
+    public String startPlayer(List<String> users) {
+        StringBuilder bldr = new StringBuilder();
+        Collections.shuffle(users);
+        int i = 1;
+        for (String user : users) {
+            bldr.append(user + " is in seat " + (i++) + "\n");
+        }
+        return bldr.toString();
     }
 }

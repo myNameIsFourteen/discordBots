@@ -43,7 +43,7 @@ public class DraftMaster {
         state.shuffleDeck();
 
         for (int i = 0; i < playerCount; i++) {
-            output.publishToPlayer("---Welcome to 1846 draft. You hold:" + state.stateOfPlayer(i) + "---", i, false);
+            output.publishToPlayer("---Welcome to 1846 draft. You hold:" + state.stateOfPlayer(i) + "---", i, false, true);
         }
 
         dealAndRequestNormalCard();
@@ -68,7 +68,7 @@ public class DraftMaster {
     private void requestSelection(List<Private> privates) {
         StringBuilder bldr = new StringBuilder();
         stateAndPrompt(privates, bldr);
-        output.publishToPlayer(bldr.toString(), state.getActivePlayer());
+        output.publishToPlayer(bldr.toString(), state.getActivePlayer(), true, false);
         output.publishToAll(output.namePlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
         state.setWait(NORMAL);
     }
@@ -119,7 +119,7 @@ public class DraftMaster {
             StringBuilder bldr = new StringBuilder();
             stateAndPrompt(singleTon, bldr);
             bldr.append("1) decline and redude price by $10");
-            output.publishToPlayer(bldr.toString(), state.getActivePlayer());
+            output.publishToPlayer(bldr.toString(), state.getActivePlayer(), true, false);
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
         }
     }
