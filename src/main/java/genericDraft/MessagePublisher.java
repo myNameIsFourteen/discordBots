@@ -12,6 +12,7 @@ public interface MessagePublisher {
     void abortDraft();
 
     String mentionPlayer(int activePlayer);
+    String namePlayer(int activePlayer);
 
     void publishToPlayer(String s, int i, boolean b);
 }

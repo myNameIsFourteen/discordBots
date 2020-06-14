@@ -44,7 +44,7 @@ public class GenericDraftMaster {
         StringBuilder bldr = new StringBuilder();
         stateAndPrompt(privates, bldr);
         output.publishToPlayer(bldr.toString(), state.getActivePlayer());
-        output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
+        output.publishToAll(output.namePlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
     }
 
     private void stateAndPrompt(List<Object> privates, StringBuilder bldr) {
@@ -60,7 +60,7 @@ public class GenericDraftMaster {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
         if (state.pick(selection)) {
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " made a selection.");
+            output.publishToAll(output.namePlayer(state.getActivePlayer()) + " made a selection.");
 
             //advance active player
             if (state.isComplete()) {
@@ -77,7 +77,7 @@ public class GenericDraftMaster {
     void draftComplete() {
         StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
         for (int i = state.getPlayerCount()-1; i >= 0; i--) {
-            bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i));
+            bldr.append(output.namePlayer(i) + " holds" + state.stateOfPlayer(i));
         }
         output.publishToAll(bldr.toString());
         output.abortDraft();

@@ -69,7 +69,7 @@ public class DraftMaster {
         StringBuilder bldr = new StringBuilder();
         stateAndPrompt(privates, bldr);
         output.publishToPlayer(bldr.toString(), state.getActivePlayer());
-        output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
+        output.publishToAll(output.namePlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
         state.setWait(NORMAL);
     }
 
@@ -86,7 +86,7 @@ public class DraftMaster {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
         if (state.buyIndex(selection)) {
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " made a selection.");
+            output.publishToAll(output.namePlayer(state.getActivePlayer()) + " made a selection.");
 
             //advance active player
             if (state.allPasses()) {
@@ -120,7 +120,7 @@ public class DraftMaster {
             stateAndPrompt(singleTon, bldr);
             bldr.append("1) decline and redude price by $10");
             output.publishToPlayer(bldr.toString(), state.getActivePlayer());
-            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
+            output.publishToAll(output.namePlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
         }
     }
 
@@ -128,12 +128,12 @@ public class DraftMaster {
         if (selection == 0) {
             state.buyIndex(0);
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " accepted the last card.");
+            output.publishToAll(output.namePlayer(state.getActivePlayer()) + " accepted the last card.");
             draftComplete();
         } else if (selection == 1) {
             state.reducePrice();
             output.publishToPlayer("Last card declined. You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " declined the last card.");
+            output.publishToAll(output.namePlayer(state.getActivePlayer()) + " declined the last card.");
             dealAndRequestLastCard();
         } else {
             output.publishToPlayer("I'm sorry, please enter 0 or 1", state.getActivePlayer());

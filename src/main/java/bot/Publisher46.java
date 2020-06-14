@@ -22,21 +22,21 @@ public class Publisher46 implements MessagePublisher {
     private MessageChannel channel;
     private List<PrivateChannel> privateChannels = new ArrayList<>();
     private DraftMaster draftMaster;
-    private ArrayList<User> players = new ArrayList<>();
-    private User activePlayer;
+    private ArrayList<Member> players = new ArrayList<>();
+    private Member activePlayer;
 
     public Publisher46(MessageReceivedEvent event, Runnable exitCallback) {
         channel = event.getChannel();
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
 
-        for (User user : event.getMessage().getMentionedUsers()) {
+        for (Member user : event.getMessage().getMentionedMembers()) {
             for (int i = 0; i < event.getMessage().getMentionedUsersBag().getCount(user); i++) {
                 players.add(user);
             }
         }
 
         while (players.size() < 3) {
-            players.add(event.getAuthor());
+            players.add(event.getGuild().getMember(event.getAuthor()));
         }
 
         Collections.shuffle(players);
@@ -44,7 +44,7 @@ public class Publisher46 implements MessagePublisher {
         String help = " and has the Priority Deal\n";
         StringBuilder start = new StringBuilder();
         int i = players.size();
-        for (User u : players) {
+        for (Member u : players) {
             start.append("User " + u.getAsMention() + " has pick " + i + help);
             i--;
             help = "\n";
@@ -57,7 +57,7 @@ public class Publisher46 implements MessagePublisher {
 
         List<Future<PrivateChannel>> futures = new ArrayList<>();
 
-        players.forEach(p -> futures.add(p.openPrivateChannel().submit()));
+        players.forEach(p -> futures.add(p.getUser().openPrivateChannel().submit()));
 
         for (Future<PrivateChannel> future : futures) {
             try {
@@ -121,5 +121,10 @@ public class Publisher46 implements MessagePublisher {
     @Override
     public String mentionPlayer(int activePlayer) {
         return players.get(activePlayer).getAsMention();
+    }
+
+    @Override
+    public String namePlayer(int activePlayer) {
+        return players.get(activePlayer).getEffectiveName();
     }
 }
