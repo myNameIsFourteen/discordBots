@@ -74,7 +74,7 @@ public class DraftMaster {
     }
 
     private void stateAndPrompt(List<Private> privates, StringBuilder bldr) {
-        bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "Please make a selection:\n");
+        bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "\nPlease make a selection:\n");
         int i = 0;
         for (Private pvt : privates) {
             bldr.append(i + ") " + pvt + " for $" + (pvt.getCost() - state.getDiscount()) + "\n");
@@ -85,7 +85,7 @@ public class DraftMaster {
     void selectionMade(int selection) {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
         if (state.buyIndex(selection)) {
-            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
+            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + " made a selection.");
 
             //advance active player
@@ -127,7 +127,7 @@ public class DraftMaster {
     void finalSelecitonMade(int selection) {
         if (selection == 0) {
             state.buyIndex(0);
-            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
+            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + " accepted the last card.");
             draftComplete();
         } else if (selection == 1) {
@@ -146,7 +146,7 @@ public class DraftMaster {
             if (i == state.getPlayerCount() -1) {
                 bldr.append("*PD* ");
             }
-            bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i));
+            bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i) + "\n");
         }
         output.publishToAll(bldr.toString());
         output.abortDraft();

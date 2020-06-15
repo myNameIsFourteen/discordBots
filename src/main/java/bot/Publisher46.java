@@ -25,6 +25,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
 
     private final Runnable exitCallback;
     private MessageChannel channel;
+    private GuildChannel channelg;
     private DraftMaster draftMaster;
     private ArrayList<Member> players = new ArrayList<>();
     private List<PromptQueue> promptQueues = new ArrayList<>();
@@ -32,6 +33,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
 
     public Publisher46(MessageReceivedEvent event, Runnable exitCallback) {
         channel = event.getChannel();
+        channelg = event.getGuild().getGuildChannelById(channel.getId());
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
 
         for (Member user : event.getMessage().getMentionedMembers()) {
@@ -79,12 +81,12 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
 
     public void publishToPlayer(String message, int player, boolean advancePlayer, boolean info) {
         if (info) {
-            promptQueues.get(player).sendInfo(message);
+            promptQueues.get(player).sendInfo(channel.getName() + ": " + message);
         } else {
             promptQueues.get(player).promptUser(new Prompt() {
                 @Override
                 public String promptToSend() {
-                    return message;
+                    return channel.getName() + ": " + message;
                 }
 
                 @Override
@@ -138,6 +140,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
     public void abortDraft() {
         for (int i = 0; i < players.size(); i++) {
             publishToPlayer("---The draft has ended!---", i, false, true);
+            Muxer.getTheMuxer().closeChannel(players.get(i).getUser());
         }
         exitCallback.run();
     }

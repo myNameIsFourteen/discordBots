@@ -35,8 +35,8 @@ public class PromptQueue {
     private synchronized void popPromptAndInitiate() {
         if (!queue.isEmpty()) {
             currentPrompt = queue.remove(0);
+            channel.sendMessage(currentPrompt.promptToSend()).complete();
         }
-        channel.sendMessage(currentPrompt.promptToSend()).complete();
     }
 
     private synchronized boolean isWaitingForResponse() {

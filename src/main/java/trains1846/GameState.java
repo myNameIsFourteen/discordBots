@@ -99,7 +99,7 @@ public class GameState {
     public String getEndState() {
         StringBuilder builder = new StringBuilder();
         for (int i = playerCount - 1; i >= 0; i--) {
-            builder.append(stateOfPlayer(i));
+            builder.append(stateOfPlayer(i) + "\n");
         }
         return builder.toString();
     }
@@ -107,9 +107,9 @@ public class GameState {
     @NotNull
     String stateOfPlayer(int i) {
         if (picks.get(i).isEmpty()) {
-            return ": $" + cash[i] + "\n";
+            return ": $" + cash[i];
         }
-        return ": " + picks.get(i) + " and $" + cash[i] + "\n";
+        return ": " + picks.get(i) + " and $" + cash[i];
     }
 
     public int getPlayerCount() {
