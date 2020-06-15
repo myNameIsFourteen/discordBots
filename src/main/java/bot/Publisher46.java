@@ -48,17 +48,26 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
 
         Collections.shuffle(players);
 
-        String help = " and has the Priority Deal\n";
-        StringBuilder start = new StringBuilder();
-        int i = players.size();
+        String help = " and the Priority Deal\n";
+        StringBuilder start = new StringBuilder("Priority/Seating Order:\n");
+        int i = 1;
         for (Member u : players) {
-            start.append("User " + u.getAsMention() + " has pick " + i + help);
-            i--;
+            start.append("User " + u.getAsMention() + " has seat " + i + help);
+            i++;
             help = "\n";
         }
         publishToAll(start.toString());
 
         Collections.reverse(players);
+
+        start = new StringBuilder("Priority/Seating Order:\n");
+        i = 1;
+        for (Member u : players) {
+            start.append("User " + u.getEffectiveName() + " has pick " + i + help);
+            i++;
+            help = "\n";
+        }
+        publishToAll(start.toString());
 
         for (Member player : players) {
             promptQueues.add(Muxer.getTheMuxer().openAChannel(player.getUser()));

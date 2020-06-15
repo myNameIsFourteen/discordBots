@@ -43,7 +43,7 @@ public class DraftMaster {
         state.shuffleDeck();
 
         for (int i = 0; i < playerCount; i++) {
-            output.publishToPlayer("---Welcome to 1846 draft. You hold:" + state.stateOfPlayer(i) + "---", i, false, true);
+            output.publishToPlayer("---Welcome to 1846 draft.---", i, false, true);
         }
 
         dealAndRequestNormalCard();
