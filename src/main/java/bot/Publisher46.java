@@ -37,13 +37,13 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
 
         for (Member user : event.getMessage().getMentionedMembers()) {
-            for (int i = 0; i < event.getMessage().getMentionedUsersBag().getCount(user); i++) {
+            for (int i = 0; i < event.getMessage().getMentionedUsersBag().getCount(user.getUser()); i++) {
                 players.add(user);
             }
         }
 
         while (players.size() < 3) {
-            players.add(event.getGuild().getMember(event.getAuthor()));
+            players.add(event.getGuild().retrieveMember(event.getAuthor()).complete());
         }
 
         Collections.shuffle(players);

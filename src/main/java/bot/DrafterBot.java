@@ -77,7 +77,7 @@ public class DrafterBot extends ListenerAdapter {
             if (currentGame != null && currentGame instanceof Publisher46) {
                 ((Publisher46) currentGame).handleMessage(event);
             }
-            Muxer.getTheMuxer().messageIn(event);
+             Muxer.getTheMuxer().messageIn(event);
             if (event.getChannelType() == ChannelType.TEXT) {
                 if (event.getMessage().getMentionedMembers() != null) {
                     for (Member member : event.getMessage().getMentionedMembers()) {

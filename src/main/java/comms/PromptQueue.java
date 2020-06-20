@@ -36,6 +36,8 @@ public class PromptQueue {
         if (!queue.isEmpty()) {
             currentPrompt = queue.remove(0);
             channel.sendMessage(currentPrompt.promptToSend()).complete();
+        } else {
+            currentPrompt = null;
         }
     }
 
