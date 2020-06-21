@@ -21,30 +21,29 @@ public class DraftMaster {
         primeGame(size);
     }
 
-    void primeGame(int size) {
+    private void primeGame(int size) {
         //determine player order / priority deal
-        int playerCount = size;
-        state = new GameState(playerCount);
-        state.addToDeck(Private.playerCards(playerCount));
+        state = new GameState(size);
+        state.addToDeck(Private.playerCards(size));
         List<Private> removed = new ArrayList<>();
         List<Private> groupA = Private.groupA();
-        removed.addAll(removeSome(playerCount, groupA));
+        removed.addAll(removeSome(size, groupA));
         state.addToDeck(groupA);
 
         List<Private> groupB = Private.groupB();
-        removed.addAll(removeSome(playerCount, groupB));
+        removed.addAll(removeSome(size, groupB));
         state.addToDeck(groupB);
 
         output.publishToAll("Removed Privates: " + removed);
 
         List<Private> corps = Private.removableCorps();
-        output.publishToAll("Removed Corporations: " + removeSome(playerCount, corps));
+        output.publishToAll("Removed Corporations: " + removeSome(size, corps));
 
         state.shuffleDeck();
 
-        for (int i = 0; i < playerCount; i++) {
+        for (int i = 0; i < size; i++) {
             output.publishToPlayer("---Welcome to 1846 draft.---\n"+
-                    "You are in seat #" + (playerCount - i) + " of " + playerCount + ".", i, false, true);
+                    "You are in seat #" + (size - i) + " of " + size + ".", i, false, true);
         }
 
         dealAndRequestNormalCard();
@@ -60,7 +59,7 @@ public class DraftMaster {
         return ret;
     }
 
-    void dealAndRequestNormalCard() {
+    private void dealAndRequestNormalCard() {
         //Deal N+2 to active player WAIT
         List<Private> privates = state.dealHand();
         requestSelection(privates);
@@ -75,15 +74,15 @@ public class DraftMaster {
     }
 
     private void stateAndPrompt(List<Private> privates, StringBuilder bldr) {
-        bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "\nPlease make a selection:\n");
+        bldr.append("You currently hold").append(state.stateOfPlayer(state.getActivePlayer())).append("\nPlease make a selection:\n");
         int i = 0;
         for (Private pvt : privates) {
-            bldr.append(i + ") " + pvt.getPrettyName() + " for $" + (pvt.getCost() - state.getDiscount()) + "\n");
+            bldr.append(i).append(") ").append(pvt.getPrettyName()).append(" for $").append(pvt.getCost() - state.getDiscount()).append("\n");
             i++;
         }
     }
 
-    boolean selectionMade(int selection) {
+    private boolean selectionMade(int selection) {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
         if (state.buyIndex(selection)) {
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
@@ -106,7 +105,7 @@ public class DraftMaster {
         return false;
     }
 
-    void dealAndRequestLastCard() {
+    private void dealAndRequestLastCard() {
         //handle discount
         List<Private> singleTon = state.dealHand();
         if (state.getWait() == NORMAL) {
@@ -126,7 +125,7 @@ public class DraftMaster {
         }
     }
 
-    boolean finalSelecitonMade(int selection) {
+    private boolean finalSelecitonMade(int selection) {
         if (selection == 0) {
             state.buyIndex(0);
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
@@ -145,13 +144,13 @@ public class DraftMaster {
         }
     }
 
-    void draftComplete() {
+    private void draftComplete() {
         StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
         for (int i = state.getPlayerCount()-1; i >= 0; i--) {
             if (i == state.getPlayerCount() -1) {
                 bldr.append("*PD* ");
             }
-            bldr.append(output.mentionPlayer(i) + " spent $" + state.getAmountSpentBy(i) + " and now holds" + state.stateOfPlayer(i) + "\n");
+            bldr.append(output.mentionPlayer(i)).append(" spent $").append(state.getAmountSpentBy(i)).append(" and now holds").append(state.stateOfPlayer(i)).append("\n");
         }
         output.publishToAll(bldr.toString());
         output.abortDraft();
