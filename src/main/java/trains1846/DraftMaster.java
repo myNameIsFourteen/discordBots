@@ -43,7 +43,8 @@ public class DraftMaster {
         state.shuffleDeck();
 
         for (int i = 0; i < playerCount; i++) {
-            output.publishToPlayer("---Welcome to 1846 draft.---", i, false, true);
+            output.publishToPlayer("---Welcome to 1846 draft.---\n"+
+                    "You are in seat #" + (playerCount - i) + " of " + playerCount + ".", i, false, true);
         }
 
         dealAndRequestNormalCard();
@@ -100,7 +101,7 @@ public class DraftMaster {
             dealAndRequestNormalCard();
             return true;
         } else {
-            output.publishToPlayer("Sorry, that number was not in-bounds. Please make another selection.", state.getActivePlayer());
+            output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", state.getActivePlayer());
         }
         return false;
     }

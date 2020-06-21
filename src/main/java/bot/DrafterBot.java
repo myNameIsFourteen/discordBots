@@ -72,6 +72,12 @@ public class DrafterBot extends ListenerAdapter {
             } else {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
+        } else if (content.startsWith("!draftStatus")) {
+            if (event.getChannelType() == ChannelType.PRIVATE) {
+                event.getChannel().sendMessage(gamesStatusMessage()).complete();
+            } else {
+                event.getChannel().sendMessage("This command only works via DM").complete();
+            }
         } else {
              Muxer.getTheMuxer().messageIn(event);
             if (event.getChannelType() == ChannelType.TEXT) {
@@ -86,6 +92,20 @@ public class DrafterBot extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    private String gamesStatusMessage() {
+        StringBuilder bldr = new StringBuilder();
+        bldr.append("There are " + games.keySet().size() + " drafts ongoing.\n");
+        for (MessageChannel channel : games.keySet()) {
+            if (channel.getType() == ChannelType.TEXT) {
+                TextChannel textChannel = (TextChannel) channel;
+                bldr.append(textChannel.getGuild().getName()).append("::").append(textChannel.getAsMention()).append("\n");
+            } else {
+                bldr.append(channel.getName()).append("\n");
+            }
+        }
+        return bldr.toString();
     }
 
     @NotNull

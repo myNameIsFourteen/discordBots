@@ -105,7 +105,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
                             int i = Integer.parseInt(s);
                             return draftMaster.gotMessage(i);
                         } catch (NumberFormatException e) {
-                            // event.getChannel().sendMessage("Sorry, I was expecting an integer").complete();
+                            draftMaster.gotMessage(-1);
                         }
                         return false;
                     };
