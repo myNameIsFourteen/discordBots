@@ -8,39 +8,40 @@ import java.util.List;
  * Created by micha on 6/7/2020.
  */
 public enum Private {
-    BIG4(100, 60),
-    MS(140, 80),
-    CWI(60),
-    MAIL(80),
+    BIG4(100, 60, "Big 4"),
+    MS(140, 80, "Michigan Southern"),
+    CWI(60, "Chicago & Western Indiana"),
+    MAIL(80, "Mail Contract"),
 
-    LSL(40),
-    MC(40),
-    OI(40),
+    LSL(40, "Lake Shore Line"),
+    MC(40, "Michigan Central"),
+    OI(40, "Ohio & Indiana"),
 
-    MEAT(60),
-    STEAMBOAT(40),
-    BLASTING(60),
+    MEAT(60, "Meat Packing"),
+    STEAMBOAT(40, "Steamboat"),
+    BLASTING(60, "Tunnel Blasting"),
 
-    BLANK1(0),
-    BLANK2(0),
-    BLANK3(0),
-    BLANK4(0),
-    BLANK5(0),
+    BLANK1(0, "Pass(1)"),
+    BLANK2(0, "Pass(2)"),
+    BLANK3(0, "Pass(3)"),
+    BLANK4(0, "Pass(4)"),
+    BLANK5(0, "Pass(5)"),
 
-    CandO(0),
-    ERIE(0),
-    PRR(0);
+    CandO(0, "C&O"),
+    ERIE(0, "Erie"),
+    PRR(0, "PRR");
 
     private int minPrice;
+    private String prettyName;
 
-    Private(int cost) {
-        this.cost = cost;
-        this.minPrice = 0;
+    Private(int cost, String prettyName) {
+        this (cost, 0, prettyName);
     }
 
-    Private(int cost, int minPrice) {
+    Private(int cost, int minPrice, String prettyName) {
         this.cost = cost;
         this.minPrice = minPrice;
+        this.prettyName = prettyName;
     }
 
     private int cost;
@@ -75,5 +76,9 @@ public enum Private {
 
     public int getMinPrice() {
         return minPrice;
+    }
+
+    public String getPrettyName() {
+        return prettyName;
     }
 }

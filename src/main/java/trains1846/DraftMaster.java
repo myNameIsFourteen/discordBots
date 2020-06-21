@@ -78,7 +78,7 @@ public class DraftMaster {
         bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "\nPlease make a selection:\n");
         int i = 0;
         for (Private pvt : privates) {
-            bldr.append(i + ") " + pvt + " for $" + (pvt.getCost() - state.getDiscount()) + "\n");
+            bldr.append(i + ") " + pvt.getPrettyName() + " for $" + (pvt.getCost() - state.getDiscount()) + "\n");
             i++;
         }
     }
