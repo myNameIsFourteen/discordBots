@@ -73,10 +73,6 @@ public class DrafterBot extends ListenerAdapter {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
         } else {
-            IDraftMaster currentGame = games.get(event.getChannel());
-            if (currentGame != null && currentGame instanceof Publisher46) {
-                ((Publisher46) currentGame).handleMessage(event);
-            }
              Muxer.getTheMuxer().messageIn(event);
             if (event.getChannelType() == ChannelType.TEXT) {
                 if (event.getMessage().getMentionedMembers() != null) {
