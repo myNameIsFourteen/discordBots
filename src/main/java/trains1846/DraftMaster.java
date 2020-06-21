@@ -82,7 +82,7 @@ public class DraftMaster {
         }
     }
 
-    void selectionMade(int selection) {
+    boolean selectionMade(int selection) {
         //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
         if (state.buyIndex(selection)) {
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
@@ -92,16 +92,17 @@ public class DraftMaster {
             if (state.allPasses()) {
                 output.publishToAll("Only blanks remain.");
                 draftComplete();
-                return;
+                return true;
             } else if (state.oneLeft()) {
                 dealAndRequestLastCard();
-                return;
+                return true;
             }
             dealAndRequestNormalCard();
-            return;
+            return true;
         } else {
-            output.publishToPlayer("Sorry, that number was not in-bounds.", state.getActivePlayer());
+            output.publishToPlayer("Sorry, that number was not in-bounds. Please make another selection.", state.getActivePlayer());
         }
+        return false;
     }
 
     void dealAndRequestLastCard() {
@@ -124,19 +125,22 @@ public class DraftMaster {
         }
     }
 
-    void finalSelecitonMade(int selection) {
+    boolean finalSelecitonMade(int selection) {
         if (selection == 0) {
             state.buyIndex(0);
             output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()) + "\n", state.getActivePlayer());
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + " accepted the last card.");
             draftComplete();
+            return true;
         } else if (selection == 1) {
             state.reducePrice();
             output.publishToPlayer("Last card declined. You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + " declined the last card.");
             dealAndRequestLastCard();
+            return true;
         } else {
             output.publishToPlayer("I'm sorry, please enter 0 or 1", state.getActivePlayer());
+            return false;
         }
     }
 
@@ -152,13 +156,14 @@ public class DraftMaster {
         output.abortDraft();
     }
 
-    public synchronized void gotMessage(int selection) {
+    public synchronized boolean gotMessage(int selection) {
         if (state.getWait() == NORMAL) {
-            selectionMade(selection);
+            return selectionMade(selection);
         } else if (state.getWait() == DISCOUNT) {
-            finalSelecitonMade(selection);
+            return finalSelecitonMade(selection);
         } else {
-            output.publishToAll("I was expecting a selection and got something else");
+            output.publishToAll("I was expecting a selection and got something else. Please make another selection.");
+            return false;
         }
     }
 }
