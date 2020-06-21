@@ -115,4 +115,8 @@ public class GameState {
     public int getPlayerCount() {
         return playerCount;
     }
+
+    public String getAmountSpentBy(int i) {
+        return String.valueOf(400 - cash[i]);
+    }
 }

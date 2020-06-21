@@ -146,7 +146,7 @@ public class DraftMaster {
             if (i == state.getPlayerCount() -1) {
                 bldr.append("*PD* ");
             }
-            bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i) + "\n");
+            bldr.append(output.mentionPlayer(i) + " spent $" + state.getAmountSpentBy(i) + " and now holds" + state.stateOfPlayer(i) + "\n");
         }
         output.publishToAll(bldr.toString());
         output.abortDraft();
