@@ -60,7 +60,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
 
         Collections.reverse(players);
 
-        start = new StringBuilder("Priority/Seating Order:\n");
+        start = new StringBuilder("Pick Order:\n");
         i = 1;
         for (Member u : players) {
             start.append("User " + u.getEffectiveName() + " has pick " + i + help);

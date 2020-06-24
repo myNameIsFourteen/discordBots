@@ -17,77 +17,58 @@ public class GenericDraftMaster {
     private final Muxer muxer;
     private DraftState state;
 
-    public GenericDraftMaster(MessagePublisher publisher46, int size, List<Object> toDraft) {
-        output = publisher46;
+    public GenericDraftMaster(MessagePublisher publisher, int size, List<Object> toDraft) {
+        output = publisher;
         muxer = Muxer.getTheMuxer();
-//        primeGame(size, toDraft);
+        primeGame(size, toDraft);
     }
 
-//    void primeGame(int size, List<Object> toDraft) {
-//        //determine player order / priority deal
-//        int playerCount = size;
-//        state = new DraftState(playerCount);
-//        state.addToDeck(toDraft);
-//
-//        state.shuffleDeck();
-//
-//        for (int i = 0; i < playerCount; i++) {
-//            output.publishToPlayer("---Welcome to the draft. You hold:" + state.stateOfPlayer(i) + "---", i, false);
-//        }
-//
-//        dealAndRequestNormalCard();
-//    }
-//
-//    void dealAndRequestNormalCard() {
-//        //Deal N+2 to active player WAIT
-//        List<Object> privates = state.dealHand();
-//        requestSelection(privates);
-//    }
-//
-//    private void requestSelection(List<Object> privates) {
-//        StringBuilder bldr = new StringBuilder();
-//        stateAndPrompt(privates, bldr);
-//        output.publishToPlayer(bldr.toString(), state.getActivePlayer());
-//        output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + "is next to pick (check your DMs)");
-//    }
-//
-//    private void stateAndPrompt(List<Object> privates, StringBuilder bldr) {
-//        bldr.append("You currently hold" + state.stateOfPlayer(state.getActivePlayer()) + "Please make a selection:\n");
-//        int i = 0;
-//        for (Object pvt : privates) {
-//            bldr.append(i + ") " + pvt + "\n");
-//            i++;
-//        }
-//    }
-//
-//    void selectionMade(int selection) {
-//        //SELECTION recieve and proccess seleciton, shuffle unselected and add to bottom of deck
-//        if (state.pick(selection)) {
-//            output.publishToPlayer("You now hold" + state.stateOfPlayer(state.getActivePlayer()), state.getActivePlayer());
-//            output.publishToAll(output.mentionPlayer(state.getActivePlayer()) + " made a selection.");
-//
-//            //advance active player
-//            if (state.isComplete()) {
-//                draftComplete();
-//                return;
-//            }
-//            dealAndRequestNormalCard();
-//            return;
-//        } else {
-//            output.publishToPlayer("Sorry, that number was not in-bounds.", state.getActivePlayer());
-//        }
-//    }
-//
-//    void draftComplete() {
-//        StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
-//        for (int i = state.getPlayerCount()-1; i >= 0; i--) {
-//            bldr.append(output.mentionPlayer(i) + " holds" + state.stateOfPlayer(i));
-//        }
-//        output.publishToAll(bldr.toString());
-//        output.abortDraft();
-//    }
-//
-//    public synchronized void gotMessage(int selection) {
-//        selectionMade(selection);
-//    }
+    void primeGame(int size, List<Object> toDraft) {
+        //determine player order / priority deal
+        int playerCount = size;
+        state = new DraftState(playerCount, toDraft);
+
+        for (int i = 0; i < playerCount; i++) {
+            output.publishToPlayer("---Welcome to the draft. You hold:" + state.stateOfPlayer(i) + "---", i);
+        }
+
+        state.passPacks();
+        promptEachPick(playerCount);
+    }
+
+    private void promptEachPick(int playerCount) {
+        for (int i = 0; i < playerCount; i++) {
+            output.publishToPlayer(state.promptPlayer(i), i, true, false);
+        }
+    }
+
+    //recieved a pick from the player
+    public boolean gotMessage(int player, int i) {
+        boolean picked = state.makeAPick(player, i);
+        if (picked) {
+            output.publishToPlayer("You now hold" + state.stateOfPlayer(player) + "\n", player);
+            output.publishToAll(output.namePlayer(i) + " made a selection.");
+        } else {
+            output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", i);
+        }
+        if (state.packsEmpty()) {
+            draftComplete();
+        } else if (state.newRoundReady()) {
+            state.passPacks();
+            promptEachPick(state.getPlayerCount());
+        }
+        return picked;
+    }
+
+    private void draftComplete() {
+        StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
+        for (int i = state.getPlayerCount()-1; i >= 0; i--) {
+            if (i == state.getPlayerCount() -1) {
+                bldr.append("*PD* ");
+            }
+            bldr.append(output.mentionPlayer(i)).append("Holds").append(state.stateOfPlayer(i)).append("\n");
+        }
+        output.publishToAll(bldr.toString());
+        output.abortDraft();
+    }
 }

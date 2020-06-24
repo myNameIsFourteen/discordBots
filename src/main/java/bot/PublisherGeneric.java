@@ -2,7 +2,9 @@ package bot;
 
 import comms.IDraftMaster;
 import comms.Muxer;
+import comms.Prompt;
 import comms.PromptQueue;
+import genericDraft.GenericDraftMaster;
 import genericDraft.MessagePublisher;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,16 +17,18 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by micha on 6/7/2020.
  */
-public class PublisherGeneric implements IDraftMaster {
+public class PublisherGeneric implements IDraftMaster, MessagePublisher {
 
     private final Runnable exitCallback;
+    private final GenericDraftMaster draftMaster;
     private MessageChannel channel;
 //    private DraftMaster draftMaster;
-    private ArrayList<User> players = new ArrayList<>();
+    private ArrayList<Member> players = new ArrayList<>();
     private List<PromptQueue> promptQueues = new ArrayList<>();
 //    private User activePlayer;
 
@@ -32,39 +36,46 @@ public class PublisherGeneric implements IDraftMaster {
         channel = event.getChannel();
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
 
-        for (User user : event.getMessage().getMentionedUsers()) {
-            for (int i = 0; i < event.getMessage().getMentionedUsersBag().getCount(user); i++) {
+        for (Member user : event.getMessage().getMentionedMembers()) {
+            for (int i = 0; i < event.getMessage().getMentionedUsersBag().getCount(user.getUser()); i++) {
                 players.add(user);
             }
         }
 
-        while (players.size() < 3) {
-            players.add(event.getAuthor());
+        while (players.size() < 2) {
+            players.add(event.getGuild().retrieveMember(event.getAuthor()).complete());
         }
 
         Collections.shuffle(players);
 
-        String help = " and has the Priority Deal\n";
         StringBuilder start = new StringBuilder();
-        int i = players.size();
-        for (User u : players) {
-            start.append("User " + u.getAsMention() + " has pick " + i + help);
-            i--;
-            help = "\n";
+        int i = 1;
+        for (Member u : players) {
+            start.append("User " + u.getAsMention() + " has seat " + i + "\n");
+            i++;
         }
         publishToAll(start.toString());
 
         Collections.reverse(players);
         List<Future<PrivateChannel>> futures = new ArrayList<>();
 
-        players.forEach(p -> futures.add(p.openPrivateChannel().submit()));
+        players.forEach(p -> futures.add(p.getUser().openPrivateChannel().submit()));
 
-        for (User player : players) {
-            promptQueues.add(Muxer.getTheMuxer().openAChannel(player));
+        for (Member player : players) {
+            promptQueues.add(Muxer.getTheMuxer().openAChannel(player.getUser()));
+        }
+
+        ArrayList draftObjects = new ArrayList<String>();
+        for (int q = 0; q < 16; q++) {
+            draftObjects.add("Minor Number " + q);
+        }
+        //Take out private #0 for odd player games.
+        if (players.size() % 2 != 0) {
+            draftObjects.remove(0);
         }
 
         //players shuffle goes here
-//        draftMaster = new DraftMaster(this, players.size());
+        draftMaster = new GenericDraftMaster(this, players.size(), draftObjects);
         this.exitCallback = exitCallback;
     }
 
@@ -72,11 +83,6 @@ public class PublisherGeneric implements IDraftMaster {
     public void publishToAll(String message) {
         channel.sendMessage(message).complete();
     }
-
-//    @Override
-//    public void publishToPlayer(String message, int player) {
-//        publishToPlayer(message, player, true);
-//    }
 
     public void publishToPlayer(String message, int player) {
         promptQueues.get(player).sendInfo(pFromIndex(player) +  message);
@@ -87,30 +93,53 @@ public class PublisherGeneric implements IDraftMaster {
         return "P" + (players.size() - player);
     }
 
-//    public synchronized void handleMessage(MessageReceivedEvent event) {
-//        if (event.getChannelType() == ChannelType.PRIVATE) {
-//            try {
-//                int i = Integer.parseInt(event.getMessage().getContentRaw());
-//                if (event.getAuthor().getId().equals(activePlayer.getId())) {
-//                    draftMaster.gotMessage(i);
-//                } else {
-//                    event.getChannel().sendMessage("Hey, it isn't your turn right now").complete();
-//                }
-//            } catch (NumberFormatException e) {
-//                event.getChannel().sendMessage("Sorry, I was expecting an integer").complete();
-//            }
-//        }
-//    }
-
     @Override
     public void abortDraft() {
         for (int i = 0; i < players.size(); i++) {
-            publishToPlayer("---The draft has ended!---", i);
+            publishToPlayer("---The draft has ended!---", i, false, true);
+            Muxer.getTheMuxer().closeChannel(players.get(i).getUser());
         }
         exitCallback.run();
     }
 
     public String mentionPlayer(int activePlayer) {
         return players.get(activePlayer).getAsMention();
+    }
+
+    @Override
+    public String namePlayer(int activePlayer) {
+        return players.get(activePlayer).getEffectiveName();
+    }
+
+    @Override
+    public void publishToPlayer(String message, int player, boolean advancePlayer, boolean info) {
+        if (info) {
+            promptQueues.get(player).sendInfo(channel.getName() + ": " + message);
+        } else {
+            promptQueues.get(player).promptUser(new Prompt() {
+                @Override
+                public String promptToSend() {
+                    return channel.getName() + ": " + message;
+                }
+
+                @Override
+                public Function<String, Boolean> handleResponse() {
+                    return (String s) -> {
+                        try {
+                            int i = Integer.parseInt(s);
+                            return draftMaster.gotMessage(player, i);
+                        } catch (NumberFormatException e) {
+                            draftMaster.gotMessage(player, -1);
+                        }
+                        return false;
+                    };
+                }
+
+                @Override
+                public User userToPrompt() {
+                    return players.get(player).getUser();
+                }
+            });
+        }
     }
 }
