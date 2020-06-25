@@ -14,12 +14,10 @@ import static trains1846.WaitType.NORMAL;
  */
 public class GenericDraftMaster {
     private final MessagePublisher output;
-    private final Muxer muxer;
     private DraftState state;
 
     public GenericDraftMaster(MessagePublisher publisher, int size, List<Object> toDraft) {
         output = publisher;
-        muxer = Muxer.getTheMuxer();
         primeGame(size, toDraft);
     }
 
@@ -29,7 +27,7 @@ public class GenericDraftMaster {
         state = new DraftState(playerCount, toDraft);
 
         for (int i = 0; i < playerCount; i++) {
-            output.publishToPlayer("---Welcome to the draft. You hold:" + state.stateOfPlayer(i) + "---", i);
+            output.publishToPlayer("---Welcome to the draft. You hold: " + state.stateOfPlayer(i) + "---", i);
         }
 
         state.passPacks();
@@ -46,7 +44,7 @@ public class GenericDraftMaster {
     public boolean gotMessage(int player, int i) {
         boolean picked = state.makeAPick(player, i);
         if (picked) {
-            output.publishToPlayer("You now hold" + state.stateOfPlayer(player) + "\n", player);
+            output.publishToPlayer("You now hold " + state.stateOfPlayer(player) + "\n", player);
             output.publishToAll(output.namePlayer(i) + " made a selection.");
         } else {
             output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", i);
@@ -63,10 +61,7 @@ public class GenericDraftMaster {
     private void draftComplete() {
         StringBuilder bldr = new StringBuilder("The Draft Is Complete\n");
         for (int i = state.getPlayerCount()-1; i >= 0; i--) {
-            if (i == state.getPlayerCount() -1) {
-                bldr.append("*PD* ");
-            }
-            bldr.append(output.mentionPlayer(i)).append("Holds").append(state.stateOfPlayer(i)).append("\n");
+            bldr.append(output.mentionPlayer(i)).append("Holds ").append(state.stateOfPlayer(i)).append("\n");
         }
         output.publishToAll(bldr.toString());
         output.abortDraft();

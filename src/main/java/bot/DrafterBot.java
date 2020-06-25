@@ -70,7 +70,7 @@ public class DrafterBot extends ListenerAdapter {
         } else if (content.startsWith("!18EUdraft")) {
             IDraftMaster iDraftMaster = games.get(event.getChannel());
             if (iDraftMaster == null) {
-                games.put(event.getChannel(), new PublisherGeneric(event, () -> {games.put(event.getChannel(), null);}));
+                games.put(event.getChannel(), new PublisherGeneric(event, () -> {games.remove(event.getChannel());}));
             } else {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
