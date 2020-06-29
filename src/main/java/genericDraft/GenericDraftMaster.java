@@ -45,7 +45,7 @@ public class GenericDraftMaster {
         boolean picked = state.makeAPick(player, i);
         if (picked) {
             output.publishToPlayer("You now hold " + state.stateOfPlayer(player) + "\n", player);
-            output.publishToAll(output.namePlayer(i) + " made a selection.");
+            output.publishToAll(output.namePlayer(player) + " made a selection.");
         } else {
             output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", i);
         }
