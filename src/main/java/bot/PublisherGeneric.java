@@ -114,12 +114,12 @@ public class PublisherGeneric implements IDraftMaster, MessagePublisher {
     @Override
     public void publishToPlayer(String message, int player, boolean advancePlayer, boolean info) {
         if (info) {
-            promptQueues.get(player).sendInfo(channel.getName() + ": " + message);
+            promptQueues.get(player).sendInfo(makeChannelRef(channel) + ": " + message);
         } else {
             promptQueues.get(player).promptUser(new Prompt() {
                 @Override
                 public String promptToSend() {
-                    return channel.getName() + ": " + message;
+                    return makeChannelRef(channel) + ": " + message;
                 }
 
                 @Override

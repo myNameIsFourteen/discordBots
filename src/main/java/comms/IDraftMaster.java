@@ -1,10 +1,25 @@
 package comms;
 
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
+
 /**
  * Created by micha on 6/14/2020.
  */
 public interface IDraftMaster {
     void publishToAll(String s);
+
+    default String makeChannelRef(MessageChannel channel) {
+        StringBuilder bldr = new StringBuilder();
+        if (channel.getType() == ChannelType.TEXT) {
+            TextChannel textChannel = (TextChannel) channel;
+            bldr.append(textChannel.getGuild().getName()).append("::").append(textChannel.getAsMention());
+        } else {
+            bldr.append(channel.getName());
+        }
+        return bldr.toString();
+    }
 
     void abortDraft();
 }
