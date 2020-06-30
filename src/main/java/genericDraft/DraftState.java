@@ -83,4 +83,17 @@ public class DraftState<Pickable extends Object> {
         }
         return bldr.toString();
     }
+
+    public boolean hasDecision(int player) {
+        return currentPack(player).size() > 1;
+    }
+
+    public String lastPickFor(int player) {
+        StringBuilder bldr = new StringBuilder();
+        bldr.append("You currently hold").append(stateOfPlayer(player)).append("\nAnd you have been passed:\n");
+        for (Object pvt : currentPack(player)) {
+            bldr.append(pvt).append("\n");
+        }
+        return bldr.toString();
+    }
 }

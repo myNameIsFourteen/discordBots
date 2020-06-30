@@ -36,7 +36,12 @@ public class GenericDraftMaster {
 
     private void promptEachPick(int playerCount) {
         for (int i = 0; i < playerCount; i++) {
-            output.publishToPlayer(state.promptPlayer(i), i, true, false);
+            if (state.hasDecision(i)) {
+                output.publishToPlayer(state.promptPlayer(i), i, true, false);
+            } else {
+                output.publishToPlayer(state.lastPickFor(i), i, true, true);
+                gotMessage(i, 0);
+            }
         }
     }
 
