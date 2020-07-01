@@ -74,7 +74,7 @@ public class DraftMaster {
     }
 
     private void stateAndPrompt(List<Private> privates, StringBuilder bldr) {
-        bldr.append("You currently hold").append(state.stateOfPlayer(state.getActivePlayer())).append("\nPlease make a selection:\n");
+        bldr.append("You currently hold ").append(state.stateOfPlayer(state.getActivePlayer())).append("\nPlease make a selection:\n");
         int i = 0;
         for (Private pvt : privates) {
             bldr.append(i).append(") ").append(pvt.getPrettyName()).append(" for $").append(pvt.getCost() - state.getDiscount()).append("\n");

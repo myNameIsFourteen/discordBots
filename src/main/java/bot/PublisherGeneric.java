@@ -5,13 +5,16 @@ import comms.Muxer;
 import comms.Prompt;
 import comms.PromptQueue;
 import genericDraft.GenericDraftMaster;
+import genericDraft.GenericPickable;
 import genericDraft.MessagePublisher;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import trains1846.DraftMaster;
+import trains18EU.Minor18EU;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -65,14 +68,14 @@ public class PublisherGeneric implements IDraftMaster, MessagePublisher {
             promptQueues.add(Muxer.getTheMuxer().openAChannel(player.getUser()));
         }
 
-        ArrayList draftObjects = new ArrayList<String>();
-        for (int q = 0; q < 16; q++) {
-            draftObjects.add("Minor Number " + q);
-        }
+        ArrayList draftObjects = new ArrayList<GenericPickable>();
+        draftObjects.addAll(Arrays.asList(Minor18EU.values()));
         //Take out private #0 for odd player games.
-        if (players.size() % 2 != 0) {
-            draftObjects.remove(0);
+        if (players.size() % 2 == 0) {
+            Collections.reverse(draftObjects);
         }
+        //remove either the 0 or the 1B depending on even player count
+        draftObjects.remove(0);
 
         //players shuffle goes here
         draftMaster = new GenericDraftMaster(this, players.size(), draftObjects);

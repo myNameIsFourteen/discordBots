@@ -2,48 +2,46 @@ package genericDraft;
 
 import trains1846.Private;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by micha on 6/11/2020.
  */
-public class DraftState<Pickable extends Object> {
+public class DraftState<Pickable extends GenericPickable> {
     private int offset;
     private int playerCount;
     private int picksOutstanding;
-    private List<List<Pickable>> packs = new ArrayList<>();
+    private List<Map<Integer, Pickable>> packs = new ArrayList<>();
     private List<List<Pickable>> picks = new ArrayList<>();
 
     public DraftState(int playerCount, List<Pickable> startingDeck) {
         //deal the cards into random packs
         for (int i = 0; i < playerCount; i++) {
-            packs.add(new ArrayList<Pickable>());
+            packs.add(new HashMap<Integer, Pickable>());
             picks.add(new ArrayList<Pickable>());
         }
         Collections.shuffle(startingDeck);
         for (int deal = 0;!startingDeck.isEmpty();deal++) {
             deal %= packs.size();
-            packs.get(deal).add(startingDeck.remove(0));
+            Pickable remove = startingDeck.remove(0);
+            packs.get(deal).put(remove.pickIndex(), remove);
         }
         this.playerCount =  playerCount;
         //pack creation complete
     }
 
     public synchronized boolean makeAPick(int player, int selection) {
-        try {
+        if (currentPack(player).containsKey(selection)) {
             Pickable pick = currentPack(player).remove(selection);
             picks.get(player).add(pick);
             picksOutstanding--;
             return true;
-        } catch (IndexOutOfBoundsException e) {
+        } else {
             return false;
         }
     }
 
-    private List<Pickable> currentPack(int player) {
+    private Map<Integer, Pickable> currentPack(int player) {
         int packNum = (player + offset) % packs.size();
         return packs.get(packNum);
     }
@@ -75,10 +73,10 @@ public class DraftState<Pickable extends Object> {
 
     public String promptPlayer(int player) {
         StringBuilder bldr = new StringBuilder();
-        bldr.append("You currently hold").append(stateOfPlayer(player)).append("\nPlease make a selection:\n");
+        bldr.append("You currently hold ").append(stateOfPlayer(player)).append("\nPlease make a selection:\n");
         int i = 0;
-        for (Object pvt : currentPack(player)) {
-            bldr.append(i).append(") ").append(pvt).append("\n");
+        for (GenericPickable pvt : currentPack(player).values()) {
+            bldr.append(pvt.pickIndex()).append(") ").append(pvt.longDescription()).append("\n");
             i++;
         }
         return bldr.toString();
@@ -91,9 +89,16 @@ public class DraftState<Pickable extends Object> {
     public String lastPickFor(int player) {
         StringBuilder bldr = new StringBuilder();
         bldr.append("You currently hold").append(stateOfPlayer(player)).append("\nAnd you have been passed:\n");
-        for (Object pvt : currentPack(player)) {
-            bldr.append(pvt).append("\n");
+        for (Pickable pvt : currentPack(player).values()) {
+            bldr.append(pvt.longDescription()).append("\n");
         }
         return bldr.toString();
+    }
+
+    public int lastPickIndex(int player) {
+        for (Pickable pvt : currentPack(player).values()) {
+            return pvt.pickIndex();
+        }
+        return 0;
     }
 }

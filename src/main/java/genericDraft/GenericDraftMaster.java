@@ -16,12 +16,12 @@ public class GenericDraftMaster {
     private final MessagePublisher output;
     private DraftState state;
 
-    public GenericDraftMaster(MessagePublisher publisher, int size, List<Object> toDraft) {
+    public GenericDraftMaster(MessagePublisher publisher, int size, List<GenericPickable> toDraft) {
         output = publisher;
         primeGame(size, toDraft);
     }
 
-    void primeGame(int size, List<Object> toDraft) {
+    void primeGame(int size, List<GenericPickable> toDraft) {
         //determine player order / priority deal
         int playerCount = size;
         state = new DraftState(playerCount, toDraft);
@@ -40,7 +40,7 @@ public class GenericDraftMaster {
                 output.publishToPlayer(state.promptPlayer(i), i, true, false);
             } else {
                 output.publishToPlayer(state.lastPickFor(i), i, true, true);
-                gotMessage(i, 0);
+                gotMessage(i, state.lastPickIndex(i));
             }
         }
     }
@@ -52,7 +52,7 @@ public class GenericDraftMaster {
             output.publishToPlayer("You now hold " + state.stateOfPlayer(player) + "\n", player);
             output.publishToAll(output.namePlayer(player) + " made a selection.");
         } else {
-            output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", i);
+            output.publishToPlayer("Sorry, that response was not in-bounds. Please make another selection.", player);
         }
         if (state.packsEmpty()) {
             draftComplete();
