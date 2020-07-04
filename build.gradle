@@ -2,6 +2,7 @@ group 'com.squarethru5'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
@@ -14,3 +15,5 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'net.dv8tion:JDA:4.1.1_137'
 }
+
+mainClassName = 'bot.DrafterBot'
