@@ -119,7 +119,7 @@ public class DraftMaster {
         } else {
             StringBuilder bldr = new StringBuilder();
             stateAndPrompt(singleTon, bldr);
-            bldr.append("1) decline and redude price by $10");
+            bldr.append("1) decline and reduce price by $10");
             output.publishToPlayer(bldr.toString(), state.getActivePlayer(), true, false);
             output.publishToAll(output.namePlayer(state.getActivePlayer()) + " is next to pick (check your DMs)");
         }
