@@ -70,12 +70,13 @@ public class PublisherGeneric implements IDraftMaster, MessagePublisher {
 
         ArrayList draftObjects = new ArrayList<GenericPickable>();
         draftObjects.addAll(Arrays.asList(Minor18EU.values()));
-        //Take out private #0 for odd player games.
+        //Take out private #0 and #1 for odd player games, else take out #1B for even games
         if (players.size() % 2 == 0) {
-            Collections.reverse(draftObjects);
+            draftObjects.remove(Minor18EU.ONEB);
+        } else {
+            draftObjects.remove(Minor18EU.ZERO);
+            draftObjects.remove(Minor18EU.ONE);
         }
-        //remove either the 0 or the 1B depending on even player count
-        draftObjects.remove(0);
 
         //players shuffle goes here
         draftMaster = new GenericDraftMaster(this, players.size(), draftObjects);
