@@ -128,7 +128,8 @@ public class Publisher2038 implements IDraftMaster {
             String tile = drawRandomTile();
             publishTile(tile);
             if (!tile.contains(special)) {
-                publishToAll("First draw has no Ice, drawing again, then returning " + tile + " to bag");
+                String searchee = special.equals("I") ? "Ice" : "Rare";
+                publishToAll("First draw has no "+ searchee +", drawing again, then returning " + tile + " to bag");
                 String tile2 = drawRandomTile();
                 publishTile(tile2);
                 tiles.add(tile, 1);
