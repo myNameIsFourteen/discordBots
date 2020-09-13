@@ -25,7 +25,7 @@ import java.util.function.Function;
 /**
  * Created by micha on 6/7/2020.
  */
-public class PublisherGeneric implements IDraftMaster, MessagePublisher {
+public class Publisher18EU implements IDraftMaster, MessagePublisher {
 
     private final Runnable exitCallback;
     private final GenericDraftMaster draftMaster;
@@ -35,7 +35,7 @@ public class PublisherGeneric implements IDraftMaster, MessagePublisher {
     private List<PromptQueue> promptQueues = new ArrayList<>();
 //    private User activePlayer;
 
-    public PublisherGeneric(MessageReceivedEvent event, Runnable exitCallback) {
+    public Publisher18EU(MessageReceivedEvent event, Runnable exitCallback) {
         channel = event.getChannel();
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
 

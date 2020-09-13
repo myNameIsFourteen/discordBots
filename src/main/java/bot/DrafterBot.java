@@ -2,17 +2,12 @@ package bot;
 
 import comms.IDraftMaster;
 import comms.Muxer;
-import container.ContainerPlayer;
-import container.ContainerStart;
-import genericDraft.GenericDraftMaster;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import qe.QeManager;
 
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
@@ -63,14 +58,14 @@ public class DrafterBot extends ListenerAdapter {
             } else {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
-        } else if (content.startsWith("!1846abort") || content.startsWith("!18EUabort")) {
+        } else if (content.startsWith("!1846abort") || content.startsWith("!18EUabort") || content.startsWith("!2038abort")) {
             IDraftMaster iDraftMaster = games.get(event.getChannel());
-            iDraftMaster.publishToAll("This draft was aborted by someone using the !1846abort/!18EUabort command");
+            iDraftMaster.publishToAll("This draft was aborted by someone using the !1846abort/!18EUabort/!2038abort command");
             iDraftMaster.abortDraft();
         } else if (content.startsWith("!18EUdraft")) {
             IDraftMaster iDraftMaster = games.get(event.getChannel());
             if (iDraftMaster == null) {
-                games.put(event.getChannel(), new PublisherGeneric(event, () -> {games.remove(event.getChannel());}));
+                games.put(event.getChannel(), new Publisher18EU(event, () -> {games.remove(event.getChannel());}));
             } else {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }
