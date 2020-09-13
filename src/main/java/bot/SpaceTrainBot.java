@@ -31,6 +31,7 @@ public class SpaceTrainBot extends ListenerAdapter {
         builder.addEventListeners(new SpaceTrainBot());
         main = builder.build();
         selfUser = main.getSelfUser();
+        main.getPresence().setActivity(Activity.of(Activity.ActivityType.DEFAULT, "18xx | try !help"));
     }
 
     @Override
@@ -49,11 +50,7 @@ public class SpaceTrainBot extends ListenerAdapter {
         }
 
         if (!handled) {
-            if (content.startsWith("!1846abort") || content.startsWith("!18EUabort")) {
-                IDraftMaster iDraftMaster = games.get(event.getChannel());
-                iDraftMaster.publishToAll("This draft was aborted by someone using the !1846abort/!18EUabort command");
-                iDraftMaster.abortDraft();
-            } else if (content.startsWith("!draftStatus")) {
+            if (content.startsWith("!draftStatus")) {
                 if (event.getChannelType() == ChannelType.PRIVATE) {
                     event.getChannel().sendMessage(gamesStatusMessage()).complete();
                 } else {
@@ -115,13 +112,27 @@ public class SpaceTrainBot extends ListenerAdapter {
             case HELP:
                 sendHelpMessage(event);
                 return true;
+            case ABORT:
+                iDraftMaster = games.get(event.getChannel());
+                iDraftMaster.processCommand(TopLevelCommand.ABORT);
+                return true;
         }
         return false;
     }
 
     private void sendHelpMessage(MessageReceivedEvent event) {
-        event.getChannel().sendMessage("Did somebody say my name?\nIf you would like to start a game of 1846, send a message that starts with \"!1846draft\".\n Make sure to @mention each of the players in the game in that message.\n"
-                + "or try !18EUdraft\n" + "lastly, !startPlayer generates a random seating order.").complete();
+        if (games.containsKey(event.getChannel())) {
+            games.get(event.getChannel()).sendHelpMessage();
+        } else {
+            StringBuilder builder = new StringBuilder();
+            builder.append("I accept the following commands:\n");
+            for (TopLevelCommand command : TopLevelCommand.values()) {
+                if (command.activeSupport) {
+                    builder.append(command.invocation).append("\n");
+                }
+            }
+            event.getChannel().sendMessage(builder.toString()).complete();
+        }
     }
 
     private String gamesStatusMessage() {

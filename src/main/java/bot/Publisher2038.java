@@ -10,11 +10,14 @@ import org.apache.commons.collections4.bag.TreeBag;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 public class Publisher2038 implements IDraftMaster {
     private final Runnable exitCallback;
     private MessageChannel channel;
     private Bag<String> tiles = new TreeBag<>();
+    private boolean readyToAbort = false;
+    private int luckyDebt = 0;
 
     public Publisher2038(MessageReceivedEvent event, Runnable exitCallback) {
         this.channel = event.getChannel();
@@ -41,7 +44,7 @@ public class Publisher2038 implements IDraftMaster {
         tiles.add("R2I4", 2);
         tiles.add("R3I4", 2);
         tiles.add("R3I3", 2);
-        publishToAll("This channel is now playing 2038!\n!tile [tile] to see a tile\n!draw to draw a tile from the bag\n!bag to review the bag contents");
+        publishToAll("This channel is now playing 2038!\nType \"!help\" for the command list");
         publishBagContents();
     }
 
@@ -52,19 +55,37 @@ public class Publisher2038 implements IDraftMaster {
 
     @Override
     public void abortDraft() {
+        publishToAll("This game is shutting down. Printing final bag contents in case you need to restore it:");
+        publishBagContents();
         exitCallback.run();
     }
 
     @Override
     public void processMessage(MessageReceivedEvent event) {
         String content = event.getMessage().getContentRaw();
-        if (content.startsWith("!tile")) {
+        if (content.startsWith("!")) {
+            readyToAbort = false;
+        }
+        if (content.startsWith("!return")) {
+            boolean success = false;
+            if (content.contains(" ")) {
+                String arg = content.split(" ")[1];
+                success = returnTile(arg);
+            } else {
+                publishToAll("You need to name a tile in your command.");
+            }
+            if (success && luckyDebt > 0) {
+                luckyDebt--;
+            }
+        } else if (content.startsWith("!tile")) {
             if (content.contains(" ")) {
                 String arg = content.split(" ")[1];
                 publishTile(arg);
             } else {
                 publishToAll("You need to name a tile in your command.");
             }
+        } else if (content.startsWith("!") && luckyDebt > 0) {
+            publishToAll("Command Ignored: Lucky must return a tile to the bag first!");
         } else if (content.startsWith("!bag")) {
             publishBagContents();
         } else if (content.startsWith("!draw")) {
@@ -73,6 +94,44 @@ public class Publisher2038 implements IDraftMaster {
             } else {
                 String tile = drawRandomTile();
                 publishTile(tile);
+            }
+        } else if (content.toLowerCase(Locale.US).startsWith("!ice")) {
+            String special = "I";
+            drawSearch(special);
+        } else if (content.toLowerCase(Locale.US).startsWith("!rare")) {
+            String special = "R";
+            drawSearch(special);
+        } else if (content.toLowerCase(Locale.US).startsWith("!lucky")) {
+            String tile1 = drawRandomTile();
+            String tile2 = drawRandomTile();
+            publishToAll("Lucky Draws: " + tile1 + ", and " + tile2 + ". Please return one with !return");
+            luckyDebt++;
+        }
+    }
+
+    @Override
+    public void processCommand(TopLevelCommand command) {
+        if (command == TopLevelCommand.ABORT) {
+            if (readyToAbort) {
+                abortDraft();
+            } else {
+                readyToAbort = true;
+                publishToAll("Are you sure you want to end the game? !abort again to confirm.");
+            }
+        }
+    }
+
+    public void drawSearch(String special) {
+        if (tiles.size() < 2) {
+            publishToAll("Sorry, there are not enough tiles in the bag");
+        } else {
+            String tile = drawRandomTile();
+            publishTile(tile);
+            if (!tile.contains(special)) {
+                publishToAll("First draw has no Ice, drawing again, then returning " + tile + " to bag");
+                String tile2 = drawRandomTile();
+                publishTile(tile2);
+                tiles.add(tile, 1);
             }
         }
     }
@@ -90,9 +149,21 @@ public class Publisher2038 implements IDraftMaster {
         if (png.exists()) {
             EmbedBuilder ebuilder = new EmbedBuilder();
             ebuilder.setImage("attachment://"+arg+".png");
-            channel.sendMessage(arg + " tile").addFile(png).embed(ebuilder.build()).queue();
+            channel.sendMessage(arg + " tile").addFile(png).embed(ebuilder.build()).complete();
         } else {
             publishToAll("Sorry I don't know a tile named: " + arg);
+        }
+    }
+
+    public boolean returnTile(String arg) {
+        File png = new File("resources\\2038tiles\\" + arg + ".png");
+        if (png.exists()) {
+            tiles.add(arg, 1);
+            publishToAll("Returned tile: " + arg);
+            return true;
+        } else {
+            publishToAll("Sorry I don't know a tile named: " + arg);
+            return false;
         }
     }
 
@@ -104,5 +175,19 @@ public class Publisher2038 implements IDraftMaster {
         }
         builder.append("```");
         publishToAll(builder.toString());
+    }
+
+    @Override
+    public void sendHelpMessage() {
+        publishToAll("This channel is playing 2038\n" +
+                        "!tile [tile] to see a tile\n" +
+                        "!draw to draw a tile from the bag\n" +
+                        "!bag to review the bag contents\n" +
+                        "!ice to draw a tile using Ice Finder's special ability\n" +
+                        "!rare to draw a tile using Drill Hound's special ability\n" +
+                        "!lucky to draw a tile using Lucky's special ability\n" +
+                        "!return [tile] to return or add a tile to the bag\n" +
+                        "!abort to end the game.\n"
+        );
     }
 }

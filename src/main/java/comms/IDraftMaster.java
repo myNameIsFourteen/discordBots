@@ -1,5 +1,6 @@
 package comms;
 
+import bot.TopLevelCommand;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -27,4 +28,12 @@ public interface IDraftMaster {
     default void processMessage(MessageReceivedEvent event) {
         //do nothing.
     }
+
+    default void processCommand(TopLevelCommand command) {
+        if (command == TopLevelCommand.ABORT) {
+            abortDraft();
+        }
+    }
+
+    void sendHelpMessage();
 }

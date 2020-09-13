@@ -99,6 +99,7 @@ public class Publisher18EU implements IDraftMaster, MessagePublisher {
 
     @Override
     public void abortDraft() {
+        publishToAll("This draft was aborted by someone using the !abort command");
         for (int i = 0; i < players.size(); i++) {
             publishToPlayer("---The draft has ended!---", i, false, true);
             Muxer.getTheMuxer().closeChannel(players.get(i).getUser());
@@ -145,5 +146,11 @@ public class Publisher18EU implements IDraftMaster, MessagePublisher {
                 }
             });
         }
+    }
+
+    @Override
+    public void sendHelpMessage() {
+        publishToAll("18EU draft mostly takes place via direct message. Respond to the prompts with numbers.\n" +
+                "!abort command in this channel will end the draft early.");
     }
 }

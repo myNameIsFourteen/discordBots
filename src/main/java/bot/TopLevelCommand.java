@@ -1,10 +1,11 @@
 package bot;
 
 public enum TopLevelCommand {
-    STARTPLAYER("!startplayer", false),
-    DRAFT1846("!1846draft",false),
-    DRAFT18EU("!18eudraft", false),
+    STARTPLAYER("!startplayer", true),
+    DRAFT1846("!1846draft",true),
+    DRAFT18EU("!18eudraft", true),
     PLAY2038("!2038", true),
+    ABORT("!abort", true),
     HELP("!help", true);
 
     String invocation;
