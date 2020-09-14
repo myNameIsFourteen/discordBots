@@ -104,7 +104,10 @@ public class Publisher2038 implements IDraftMaster {
         } else if (content.toLowerCase(Locale.US).startsWith("!lucky")) {
             String tile1 = drawRandomTile();
             String tile2 = drawRandomTile();
-            publishToAll("Lucky Draws: " + tile1 + ", and " + tile2 + ". Please return one with !return");
+            publishToAll("Lucky Draws: " + tile1 + " and " + tile2 + ".");
+            publishTile(tile1);
+            publishTile(tile2);
+            publishToAll("Please return one with !return");
             luckyDebt++;
         }
     }
@@ -129,10 +132,10 @@ public class Publisher2038 implements IDraftMaster {
             publishTile(tile);
             if (!tile.contains(special)) {
                 String searchee = special.equals("I") ? "Ice" : "Rare";
-                publishToAll("First draw has no "+ searchee +", drawing again, then returning " + tile + " to bag");
+                publishToAll("First draw has no "+ searchee +", drawing again.");
                 String tile2 = drawRandomTile();
                 publishTile(tile2);
-                tiles.add(tile, 1);
+                returnTile(tile);
             }
         }
     }
@@ -148,19 +151,21 @@ public class Publisher2038 implements IDraftMaster {
     public void publishTile(String arg) {
         File png = new File("resources\\2038tiles\\" + arg + ".png");
         if (png.exists()) {
-            EmbedBuilder ebuilder = new EmbedBuilder();
-            ebuilder.setImage("attachment://"+arg+".png");
-            channel.sendMessage(arg + " tile").addFile(png).embed(ebuilder.build()).complete();
+            channel.sendMessage(arg).addFile(png).complete();
         } else {
             publishToAll("Sorry I don't know a tile named: " + arg);
         }
+    }
+
+    public void publishTwoile(String tile1, String tile2, String msg) {
+        //remove this fuction
     }
 
     public boolean returnTile(String arg) {
         File png = new File("resources\\2038tiles\\" + arg + ".png");
         if (png.exists()) {
             tiles.add(arg, 1);
-            publishToAll("Returned tile: " + arg);
+            publishToAll("Returned tile: " + arg + " to the bag");
             return true;
         } else {
             publishToAll("Sorry I don't know a tile named: " + arg);
