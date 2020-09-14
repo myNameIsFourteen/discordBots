@@ -157,10 +157,6 @@ public class Publisher2038 implements IDraftMaster {
         }
     }
 
-    public void publishTwoile(String tile1, String tile2, String msg) {
-        //remove this fuction
-    }
-
     public boolean returnTile(String arg) {
         File png = new File("resources\\2038tiles\\" + arg + ".png");
         if (png.exists()) {
