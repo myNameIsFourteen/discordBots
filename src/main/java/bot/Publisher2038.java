@@ -186,16 +186,16 @@ public class Publisher2038 implements IDraftMaster {
     }
 
     public void publishTile(String arg) {
-        File png = new File("resources\\2038tiles\\" + arg + ".png");
+        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
         if (png.exists()) {
             channel.sendMessage(arg).addFile(png).complete();
         } else {
-            publishToAll("Sorry I don't know a tile named: " + arg);
+            publishToAll("Sorry I don't know a tile named: " + png.getAbsolutePath());
         }
     }
 
     public boolean returnTile(String arg, int count) {
-        File png = new File("resources\\2038tiles\\" + arg + ".png");
+        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
         if (png.exists()) {
             tiles.add(arg, count);
             if (count == 1) {
@@ -205,19 +205,19 @@ public class Publisher2038 implements IDraftMaster {
             }
             return true;
         } else {
-            publishToAll("Sorry I don't know a tile named: " + arg);
+            publishToAll("Sorry I don't know a tile named: " + png.getAbsolutePath());
             return false;
         }
     }
 
     public boolean removeTile(String arg, int count) {
-        File png = new File("resources\\2038tiles\\" + arg + ".png");
+        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
         if (png.exists()) {
             tiles.remove(arg, count);
             publishToAll("Removed " + count + " copies of tile: " + arg + " from the bag");
             return true;
         } else {
-            publishToAll("Sorry I don't know a tile named: " + arg);
+            publishToAll("Sorry I don't know a tile named: " + png.getAbsolutePath());
             return false;
         }
     }
