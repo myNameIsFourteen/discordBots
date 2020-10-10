@@ -186,7 +186,7 @@ public class Publisher2038 implements IDraftMaster {
     }
 
     public void publishTile(String arg) {
-        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
+        File png = new File("resources" + File.separator + "2038tiles" + File.separator + arg + ".png");
         if (png.exists()) {
             channel.sendMessage(arg).addFile(png).complete();
         } else {
@@ -195,7 +195,7 @@ public class Publisher2038 implements IDraftMaster {
     }
 
     public boolean returnTile(String arg, int count) {
-        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
+        File png = new File("resources" + File.separator + "2038tiles" + File.separator + arg + ".png");
         if (png.exists()) {
             tiles.add(arg, count);
             if (count == 1) {
@@ -211,7 +211,7 @@ public class Publisher2038 implements IDraftMaster {
     }
 
     public boolean removeTile(String arg, int count) {
-        File png = new File("resources" + File.pathSeparator + "2038tiles" + File.pathSeparator + arg + ".png");
+        File png = new File("resources" + File.separator + "2038tiles" + File.separator + arg + ".png");
         if (png.exists()) {
             tiles.remove(arg, count);
             publishToAll("Removed " + count + " copies of tile: " + arg + " from the bag");
