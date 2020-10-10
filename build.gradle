@@ -1,5 +1,5 @@
 group 'com.squarethru5'
-version '1.0-SNAPSHOT'
+version '2.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -16,4 +16,4 @@ dependencies {
     compile 'net.dv8tion:JDA:4.1.1_137'
 }
 
-mainClassName = 'bot.DrafterBot'
+mainClassName = 'bot.SpaceTrainBot'
