@@ -61,7 +61,7 @@ public class DrafterBot extends ListenerAdapter {
         } else if (content.startsWith("!1846abort") || content.startsWith("!18EUabort") || content.startsWith("!2038abort")) {
             IDraftMaster iDraftMaster = games.get(event.getChannel());
             iDraftMaster.publishToAll("This draft was aborted by someone using the !1846abort/!18EUabort/!2038abort command");
-            iDraftMaster.abortDraft();
+            iDraftMaster.abortDraft(false);
         } else if (content.startsWith("!18EUdraft")) {
             IDraftMaster iDraftMaster = games.get(event.getChannel());
             if (iDraftMaster == null) {

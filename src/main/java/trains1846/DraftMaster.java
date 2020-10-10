@@ -153,7 +153,7 @@ public class DraftMaster {
             bldr.append(output.mentionPlayer(i)).append(" spent $").append(state.getAmountSpentBy(i)).append(" and now holds").append(state.stateOfPlayer(i)).append("\n");
         }
         output.publishToAll(bldr.toString());
-        output.abortDraft();
+        output.abortDraft(true);
     }
 
     public synchronized boolean gotMessage(int selection) {

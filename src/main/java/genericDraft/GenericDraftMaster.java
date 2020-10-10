@@ -1,13 +1,6 @@
 package genericDraft;
 
-import comms.Muxer;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import static trains1846.WaitType.DISCOUNT;
-import static trains1846.WaitType.NORMAL;
 
 /**
  * Created by micha on 6/11/2020.
@@ -69,6 +62,6 @@ public class GenericDraftMaster {
             bldr.append(output.mentionPlayer(i)).append("Holds ").append(state.stateOfPlayer(i)).append("\n");
         }
         output.publishToAll(bldr.toString());
-        output.abortDraft();
+        output.abortDraft(true);
     }
 }

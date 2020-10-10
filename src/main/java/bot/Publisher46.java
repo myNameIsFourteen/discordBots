@@ -13,9 +13,6 @@ import genericDraft.MessagePublisher;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -145,8 +142,10 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
     }
 
     @Override
-    public void abortDraft() {
-        publishToAll("This draft was aborted by someone using the !abort command");
+    public void abortDraft(boolean naturalEnd) {
+        if (!naturalEnd) {
+            publishToAll("This draft was aborted by someone using the !abort command");
+        }
         for (int i = 0; i < players.size(); i++) {
             publishToPlayer("---The draft has ended!---", i, false, true);
             Muxer.getTheMuxer().closeChannel(players.get(i).getUser());

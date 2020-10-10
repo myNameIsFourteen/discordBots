@@ -10,16 +10,13 @@ import genericDraft.MessagePublisher;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-import trains1846.DraftMaster;
 import trains18EU.Minor18EU;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -98,8 +95,10 @@ public class Publisher18EU implements IDraftMaster, MessagePublisher {
     }
 
     @Override
-    public void abortDraft() {
-        publishToAll("This draft was aborted by someone using the !abort command");
+    public void abortDraft(boolean naturalEnd) {
+        if (!naturalEnd) {
+            publishToAll("This draft was aborted by someone using the !abort command");
+        }
         for (int i = 0; i < players.size(); i++) {
             publishToPlayer("---The draft has ended!---", i, false, true);
             Muxer.getTheMuxer().closeChannel(players.get(i).getUser());

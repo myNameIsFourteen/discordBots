@@ -23,7 +23,7 @@ public interface IDraftMaster {
         return bldr.toString();
     }
 
-    void abortDraft();
+    void abortDraft(boolean naturalEnd);
 
     default void processMessage(MessageReceivedEvent event) {
         //do nothing.
@@ -31,7 +31,7 @@ public interface IDraftMaster {
 
     default void processCommand(TopLevelCommand command) {
         if (command == TopLevelCommand.ABORT) {
-            abortDraft();
+            abortDraft(false);
         }
     }
 

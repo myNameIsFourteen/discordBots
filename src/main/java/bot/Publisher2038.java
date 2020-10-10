@@ -17,6 +17,7 @@ public class Publisher2038 implements IDraftMaster {
     private MessageChannel channel;
     private Bag<String> tiles = new TreeBag<>();
     private boolean readyToAbort = false;
+    private boolean readyToEmpty = false;
     private int luckyDebt = 0;
 
     public Publisher2038(MessageReceivedEvent event, Runnable exitCallback) {
@@ -54,7 +55,7 @@ public class Publisher2038 implements IDraftMaster {
     }
 
     @Override
-    public void abortDraft() {
+    public void abortDraft(boolean natural) {
         publishToAll("This game is shutting down. Printing final bag contents in case you need to restore it:");
         publishBagContents();
         exitCallback.run();
@@ -63,14 +64,25 @@ public class Publisher2038 implements IDraftMaster {
     @Override
     public void processMessage(MessageReceivedEvent event) {
         String content = event.getMessage().getContentRaw();
-        if (content.startsWith("!")) {
+        if (content.startsWith("!") && !content.startsWith("!empty")) {
             readyToAbort = false;
+            readyToEmpty = false;
         }
         if (content.startsWith("!return")) {
             boolean success = false;
             if (content.contains(" ")) {
-                String arg = content.split(" ")[1];
-                success = returnTile(arg);
+                String[] args = content.split(" ");
+                String tile = args[1];
+                int count = 1;
+                if (args.length > 2) {
+                    try {
+                        count = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        publishToAll("It looks like you tried to tell me to add more than one tile at once, but I couldn't parse the number");
+                        return;
+                    }
+                }
+                success = returnTile(tile, count);
             } else {
                 publishToAll("You need to name a tile in your command.");
             }
@@ -109,6 +121,31 @@ public class Publisher2038 implements IDraftMaster {
             publishTile(tile2);
             publishToAll("Please return one with !return");
             luckyDebt++;
+        } else if (content.startsWith("!remove")) {
+            if (content.contains(" ")) {
+                String[] args = content.split(" ");
+                String tile = args[1];
+                int count = 1;
+                if (args.length > 2) {
+                    try {
+                        count = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        publishToAll("It looks like you tried to tell me to add more than one tile at once, but I couldn't parse the number");
+                        return;
+                    }
+                }
+                removeTile(tile, count);
+            } else {
+                publishToAll("You need to name a tile in your command.");
+            }
+        } else if (content.startsWith("!empty")) {
+            if (readyToEmpty) {
+                tiles.clear();
+                publishToAll("Bag Has been Emptied");
+            } else {
+                readyToEmpty = true;
+                publishToAll("Are you sure you want to empty the bag? !empty again to confirm.");
+            }
         }
     }
 
@@ -116,7 +153,7 @@ public class Publisher2038 implements IDraftMaster {
     public void processCommand(TopLevelCommand command) {
         if (command == TopLevelCommand.ABORT) {
             if (readyToAbort) {
-                abortDraft();
+                abortDraft(false);
             } else {
                 readyToAbort = true;
                 publishToAll("Are you sure you want to end the game? !abort again to confirm.");
@@ -135,7 +172,7 @@ public class Publisher2038 implements IDraftMaster {
                 publishToAll("First draw has no "+ searchee +", drawing again.");
                 String tile2 = drawRandomTile();
                 publishTile(tile2);
-                returnTile(tile);
+                returnTile(tile, 1);
             }
         }
     }
@@ -157,11 +194,27 @@ public class Publisher2038 implements IDraftMaster {
         }
     }
 
-    public boolean returnTile(String arg) {
+    public boolean returnTile(String arg, int count) {
         File png = new File("resources\\2038tiles\\" + arg + ".png");
         if (png.exists()) {
-            tiles.add(arg, 1);
-            publishToAll("Returned tile: " + arg + " to the bag");
+            tiles.add(arg, count);
+            if (count == 1) {
+                publishToAll("Returned tile: " + arg + " to the bag");
+            } else {
+                publishToAll("Returned " + count + " copies of tile: " + arg + " to the bag");
+            }
+            return true;
+        } else {
+            publishToAll("Sorry I don't know a tile named: " + arg);
+            return false;
+        }
+    }
+
+    public boolean removeTile(String arg, int count) {
+        File png = new File("resources\\2038tiles\\" + arg + ".png");
+        if (png.exists()) {
+            tiles.remove(arg, count);
+            publishToAll("Removed " + count + " copies of tile: " + arg + " from the bag");
             return true;
         } else {
             publishToAll("Sorry I don't know a tile named: " + arg);
@@ -188,7 +241,9 @@ public class Publisher2038 implements IDraftMaster {
                         "!ice to draw a tile using Ice Finder's special ability\n" +
                         "!rare to draw a tile using Drill Hound's special ability\n" +
                         "!lucky to draw a tile using Lucky's special ability\n" +
-                        "!return [tile] to return or add a tile to the bag\n" +
+                        "!return [tile] [count] to return or add a tile (or tiles) to the bag\n" +
+                        "!remove [tile] [count] to remove a tile (or tiles) from the bag\n" +
+                        "!empty to empty the bag\n" +
                         "!abort to end the game.\n"
         );
     }
