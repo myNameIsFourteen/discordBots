@@ -21,6 +21,9 @@ public enum Private {
     STEAMBOAT(40, "Steamboat"),
     BLASTING(60, "Tunnel Blasting"),
 
+    BOOM(40, "Boomtown"),
+    LITTLEM(40, "Little Miami"),
+
     BLANK1(0, "Pass(1)"),
     BLANK2(0, "Pass(2)"),
     BLANK3(0, "Pass(3)"),
@@ -51,11 +54,11 @@ public enum Private {
     }
 
     public static List<Private> groupA() {
-        return new ArrayList<>(Arrays.asList(LSL, MC, OI));
+        return new ArrayList<>(Arrays.asList(LSL, MC, OI, LITTLEM));
     }
 
     public static List<Private> groupB() {
-        return new ArrayList<>(Arrays.asList(MEAT, STEAMBOAT, BLASTING));
+        return new ArrayList<>(Arrays.asList(MEAT, STEAMBOAT, BLASTING, BOOM));
     }
 
     public static List<Private> playerCards(int playerCount) {

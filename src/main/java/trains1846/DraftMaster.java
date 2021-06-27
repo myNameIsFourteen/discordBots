@@ -16,28 +16,34 @@ public class DraftMaster {
     private final MessagePublisher output;
     GameState state;
 
-    public DraftMaster(MessagePublisher publisher46, int size) {
+    public DraftMaster(MessagePublisher publisher46, int size, boolean excludeNewPrivates) {
         output = publisher46;
-        primeGame(size);
+        primeGame(size, excludeNewPrivates);
     }
 
-    private void primeGame(int size) {
+    private void primeGame(int size, boolean excludeNewPrivates) {
         //determine player order / priority deal
         state = new GameState(size);
         state.addToDeck(Private.playerCards(size));
         List<Private> removed = new ArrayList<>();
         List<Private> groupA = Private.groupA();
-        removed.addAll(removeSome(size, groupA));
+        List<Private> groupB = Private.groupB();
+        if (excludeNewPrivates) {
+            groupA.remove(Private.LITTLEM);
+            groupB.remove(Private.BOOM);
+            removed.add(Private.LITTLEM);
+            removed.add(Private.BOOM);
+        }
+        removed.addAll(removeSome(size, groupA, 2 - size + groupA.size()));
         state.addToDeck(groupA);
 
-        List<Private> groupB = Private.groupB();
-        removed.addAll(removeSome(size, groupB));
+        removed.addAll(removeSome(size, groupB, 2 - size + groupB.size()));
         state.addToDeck(groupB);
 
         output.publishToAll("Removed Privates: " + removed);
 
         List<Private> corps = Private.removableCorps();
-        output.publishToAll("Removed Corporations: " + removeSome(size, corps));
+        output.publishToAll("Removed Corporations: " + removeSome(size, corps, 5 - size));
 
         state.shuffleDeck();
 
@@ -49,10 +55,10 @@ public class DraftMaster {
         dealAndRequestNormalCard();
     }
 
-    private List<Private> removeSome(int playerCount, List<Private> groupA) {
+    private List<Private> removeSome(int playerCount, List<Private> groupA, int numberToRemove) {
         Collections.shuffle(groupA);
         List<Private> ret = new ArrayList<>();
-        for (int i = 5; i > playerCount; i--) {
+        for (int i = 0; i < numberToRemove; i++) {
             Private removed = groupA.remove(0);
             ret.add(removed);
         }

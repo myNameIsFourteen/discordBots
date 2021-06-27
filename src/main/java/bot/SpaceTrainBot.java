@@ -81,12 +81,13 @@ public class SpaceTrainBot extends ListenerAdapter {
                     }
                 }
                 return true;
+            case DRAFTOLD1846:
             case DRAFT1846:
                 IDraftMaster iDraftMaster = games.get(event.getChannel());
                 if (iDraftMaster == null) {
                     games.put(event.getChannel(), new Publisher46(event, () -> {
                         games.remove(event.getChannel());
-                    }));
+                    }, command == TopLevelCommand.DRAFTOLD1846));
                 } else {
                     event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
                 }

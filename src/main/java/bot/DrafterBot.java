@@ -54,7 +54,7 @@ public class DrafterBot extends ListenerAdapter {
             if (iDraftMaster == null) {
                 games.put(event.getChannel(), new Publisher46(event, () -> {
                     games.remove(event.getChannel());
-                }));
+                }, false));
             } else {
                 event.getChannel().sendMessage("Sorry, there is a game in progress. Try again later or run !1846abort").complete();
             }

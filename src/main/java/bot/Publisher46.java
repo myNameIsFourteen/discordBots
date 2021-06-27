@@ -28,7 +28,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
     private List<PromptQueue> promptQueues = new ArrayList<>();
     private Member activePlayer;
 
-    public Publisher46(MessageReceivedEvent event, Runnable exitCallback) {
+    public Publisher46(MessageReceivedEvent event, Runnable exitCallback, boolean excludeNewPrivates) {
         channel = event.getChannel();
         channelg = event.getGuild().getGuildChannelById(channel.getId());
         List<Member> mentionedMembers = event.getMessage().getMentionedMembers();
@@ -71,7 +71,7 @@ public class Publisher46 implements MessagePublisher, IDraftMaster {
         }
 
         //players shuffle goes here
-        draftMaster = new DraftMaster(this, players.size());
+        draftMaster = new DraftMaster(this, players.size(), excludeNewPrivates);
         this.exitCallback = exitCallback;
     }
 
